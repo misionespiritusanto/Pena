@@ -128,14 +128,14 @@ function priv(){W(`<h1 class="s">PRIVACIDAD</h1><div class="card"><p>La peña la
 
 /* ---------- compra ---------- */
 let F={};
-function list(q,fn,dis){const k=norm(q);const L=KIDS.filter(x=>norm(x).includes(k));return L.slice(0,8).map(x=>{const i=KIDS.indexOf(x),r=disp(x);return `<button class="item" ${dis&&!r?"disabled":""} onclick="${fn}(${i})">${esc(x)}${dis?`<small>${r?r+(r>1?" entradas disponibles":" entrada disponible"):"Ya vendió todas"}</small>`:""}</button>`}).join("")+(L.length>8?`<p class="mut" style="font-size:.9rem">Hay más: escribí alguna letra más.</p>`:"")||"<p>No encontramos ese nombre.</p>"}
+function list(q,fn,dis){const k=norm(q);const L=KIDS.filter(x=>norm(x).includes(k));return L.slice(0,8).map(x=>{const i=KIDS.indexOf(x),r=disp(x);return `<button class="item" ${dis&&!r?"disabled":""} onclick="${fn}(${i})">${esc(x)}${dis?`<small>${r?r+(r>1?" entradas disponibles":" entrada disponible"):"Sin entradas disponibles"}</small>`:""}</button>`}).join("")+(L.length>8?`<p class="mut" style="font-size:.9rem">Hay más: escribí alguna letra más.</p>`:"")||"<p>No encontramos ese nombre.</p>"}
 function flt(){$("#l").innerHTML=$("#s").value.trim()?list($("#s").value,"pick",1):""}
 function pick(i){F.kid=KIDS[i];F.q=1;buy(2)}
 function tot(){return F.q*CFG.price+(F.colab||0)}
 function qd(d){F.q=Math.min(disp(F.kid),Math.max(1,F.q+d));$("#q").textContent=F.q;$("#tt").textContent=money(tot())}
 function cb(v){F.colab=Math.min(1000000,Math.max(0,Math.round(Number(v)||0)));document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",Number(c.dataset.v)===F.colab));if($("#co")&&document.activeElement!==$("#co"))$("#co").value="";$("#tt").textContent=money(tot())}
 function buy(n){
- let aviso="";if(n==1){const pre=F.pre;F={kid:"",q:1,colab:0,name:"",tel:"",mail:"",g:[],pay:""};if(pre){if(KIDS.includes(pre)&&disp(pre)){F.kid=pre;n=2}else aviso=KIDS.includes(pre)?`<p class="card">${esc(pre)} ya vendió todas sus entradas. ¡Podés comprarle a otro misionero!</p>`:`<p class="card">No encontramos a “${esc(pre)}” en la lista. Buscá al misionero por su nombre.</p>`}}
+ let aviso="";if(n==1){const pre=F.pre;F={kid:"",q:1,colab:0,name:"",tel:"",mail:"",g:[],pay:""};if(pre){if(KIDS.includes(pre)&&disp(pre)){F.kid=pre;n=2}else aviso=KIDS.includes(pre)?`<p class="card">${esc(pre)} ya no tiene entradas disponibles. ¡Podés comprarle a otro misionero!</p>`:`<p class="card">No encontramos a “${esc(pre)}” en la lista. Buscá al misionero por su nombre.</p>`}}
  const bar=`<div class="bar">${[1,2,3,4].map(i=>`<i class="${i<=n?"on":""}"></i>`).join("")}</div>`,sub=`<p class="mut">Le estás comprando a <b>${esc(F.kid)}</b></p>`;let h="";
  if(n==1)h=aviso+`<h2>¿A qué misionero le comprás?</h2><label>Nombre</label><input id="s" placeholder="Escribí su nombre" oninput="flt()" autocomplete="off"><div id="l" style="margin-top:10px"></div>`;
  if(n==2){const r=disp(F.kid);h=`<h2>¿Cuántas entradas?</h2>${sub}<p class="mut">Le ${r>1?"quedan":"queda"} ${r} disponible${r>1?"s":""}.</p><div class="qty"><button class="btn o" onclick="qd(-1)" aria-label="Menos">−</button><b id="q">${F.q}</b><button class="btn o" onclick="qd(1)" aria-label="Más">+</button></div>
