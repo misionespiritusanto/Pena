@@ -93,6 +93,7 @@ const W=(h,f)=>{app.innerHTML=`<div class="stamp">${h}</div>${foot}`;scrollTo(0,
 const back=f=>`<button class="back" onclick="${f}">‹ Volver</button>`;
 const ico=n=>`<svg viewBox="0 0 100 100"><use href="#${n}"/></svg>`;
 const qr=t=>{try{const q=qrcode(0,"M");q.addData(t);q.make();return q.createSvgTag({scalable:true,cellSize:4,margin:0})}catch(e){return ""}};
+const TKURL=id=>location.origin+location.pathname+"#in="+id;
 const sold=k=>AV[k]?AV[k].p+AV[k].g:0, cupo=k=>AV[k]?AV[k].c:CFG.per, disp=k=>Math.max(0,cupo(k)-sold(k));
 async function get(q){const r=await fetch(API+(q||""));return r.json()}
 async function post(o){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(o)});return r.json()}
@@ -165,7 +166,7 @@ function mi(pre){W(`<h1 class="s">MI ENTRADA</h1><p class="mut">Ingresá el cód
 function mq(){const c=$("#mc").value.trim().toUpperCase().replace(/^PENA-/,"").split("-")[0],m=$("#mm").value.trim();if(!c||!m)return $("#err").textContent="Completá el código y el mail.";buscarMi(c,m)}
 async function buscarMi(c,m){try{const r=await get("?action=entrada&code="+encodeURIComponent(c)+"&mail="+encodeURIComponent(m));if(!r.ok){if($("#err"))$("#err").textContent=r.error||"No encontramos esa reserva.";return}SES={code:c,mail:m};ver(r)}catch(e){if($("#err"))$("#err").textContent="No pudimos conectar. Probá de nuevo."}}
 function ver(r){const it=r.items,tk=it.filter(x=>x.e==="Pagada"),pe=it.filter(x=>x.e==="Pendiente"),an=it.filter(x=>x.e==="Anulada");
- W(`<h1 class="s">MIS ENTRADAS</h1>${tk.map(x=>`<div class="card tk"><div class="qr">${qr(x.id)}</div><b>${esc(x.n)}</b><small class="mut">${esc(x.id)}</small></div>`).join("")}${tk.length?`<p class="mut" style="font-size:.9rem">Mostrá cada QR en la puerta (uno por persona). Sacales captura por si falla internet.</p>`:""}
+ W(`<h1 class="s">MIS ENTRADAS</h1>${tk.map(x=>`<div class="card tk"><div class="qr">${qr(TKURL(x.id))}</div><b>${esc(x.n)}</b><small class="mut">${esc(x.id)}</small></div>`).join("")}${tk.length?`<p class="mut" style="font-size:.9rem">Mostrá cada QR en la puerta (uno por persona). Sacales captura por si falla internet.</p>`:""}
  ${pe.length?`<div class="card" style="margin:12px 0"><p><b>${pe.length} ${pe.length>1?"entradas pendientes":"entrada pendiente"} de pago.</b></p>${pe[0].p==="Transferencia"?(r.enviado?`<p>Ya recibimos tu comprobante y lo estamos revisando. Si te equivocaste de archivo, podés subir otro.</p>`:payBox(r.monto))+upBox():`<p>Pagá ${money(r.monto)} en efectivo al misionero que te vendió, con el código <b>${esc(r.code)}</b>.</p>`}</div>`:""}
  ${an.length?`<p class="mut">${an.length} ${an.length>1?"entradas anuladas":"entrada anulada"}.</p>`:""}${wa()}${back("home()")}`)}
 
@@ -178,11 +179,11 @@ function mc(){$("#c").innerHTML=P.map(i=>{const k=KIDS[i],a=AV[k]||{c:CFG.per,p:
 function copiar(t,b){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent="¡Copiado!"},()=>{b.textContent="Mantené apretado el link para copiarlo"})}
 
 /* ---------- administración (#admin) ---------- */
-let K="";try{K=sessionStorage.getItem("pk")||""}catch(e){}
+let K="";try{K=localStorage.getItem("pk")||sessionStorage.getItem("pk")||""}catch(e){}
 const adm=(op,o)=>post(Object.assign({action:"admin",clave:K,op},o||{}));
-function admin(){if(!K)return W(`<h1 class="s">ADMIN</h1><label>Clave</label><input id="ak" type="password" autocomplete="current-password"><p id="err" class="err"></p><button class="btn pri" onclick="alog()">Entrar</button>${back("salirAdmin()")}`);atab("buscar")}
-async function alog(){K=$("#ak").value;const r=await adm("login").catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){K="";return $("#err").textContent=r.error}try{sessionStorage.setItem("pk",K)}catch(e){}atab("buscar")}
-function salirAdmin(){K="";try{sessionStorage.removeItem("pk")}catch(e){}stopCam();location.hash="";home()}
+function admin(){if(!K)return W(`<h1 class="s">ADMIN</h1><label>Clave</label><input id="ak" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')alog()"><label class="opt"><input type="checkbox" id="arec"> <span>Recordar en este celular<small>Para los celulares de la puerta</small></span></label><p id="err" class="err"></p><button class="btn pri" onclick="alog()">Entrar</button>${back("salirAdmin()")}`);atab("buscar")}
+async function alog(){K=$("#ak").value;const r=await adm("login").catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){K="";return $("#err").textContent=r.error}try{($("#arec")&&$("#arec").checked?localStorage:sessionStorage).setItem("pk",K)}catch(e){}if(PEND_IN){const i=PEND_IN;PEND_IN="";return inq(i)}atab("buscar")}
+function salirAdmin(){K="";try{sessionStorage.removeItem("pk");localStorage.removeItem("pk")}catch(e){}stopCam();location.hash="";home()}
 function atab(t){stopCam();const tabs=[["buscar","Buscar"],["revisar","Por cobrar / revisar"],["puerta","Puerta"],["resumen","Resumen"]];
  W(`<h1 class="s">ADMIN</h1><div class="tabs">${tabs.map(([k,n])=>`<button class="${k===t?"on":""}" onclick="atab('${k}')">${n}</button>`).join("")}</div><div id="ab"></div><button class="back" onclick="salirAdmin()">Salir</button>`);
  if(t==="buscar"){$("#ab").innerHTML=`<input id="aq" placeholder="Código, comprador, misionero o mail" onkeydown="if(event.key==='Enter')abus()"><button class="btn pri" onclick="abus()">Buscar</button><div id="ar"></div>`;$("#aq").focus()}
@@ -198,22 +199,28 @@ async function aest(code,e,medio,b){if(e==="Anulada"&&b.dataset.ok!=="1"){b.data
 function alert2(m){const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3500)}
 async function ares(){$("#ab").innerHTML="<p class='mut'>Cargando…</p>";const r=await adm("resumen").catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok)return $("#ab").innerHTML=`<p class="err">${esc(r.error)}</p>`;
  const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;$("#ab").innerHTML=`<div class="card">${row("Entradas pagadas",r.pagadas)}${row("Pendientes de pago",r.pendientes)}${row("Comprobantes para revisar",r.revisar)}${row("Ya ingresaron",r.ingresaron)}${r.capacidad?row("Lugares libres",r.capacidad-r.pagadas-r.pendientes):""}</div><div class="card" style="margin-top:12px">${row("Total cobrado",money(r.total))}${row("· por QR (transferencia)",money(r.transf))}${row("· en efectivo",money(r.efectivo))}${row("Por cobrar",money(r.porCobrar))}</div><p class="mut" style="font-size:.9rem">Para controlar con María Ángela: lo que te pase del QR tiene que coincidir con “por QR”.</p>`}
+/* entrada escaneada con la cámara del celular (abre ...#in=PENA-XXXXX-1) */
+let PEND_IN="";
+function inq(raw){const id=tkid(raw);if(!K){PEND_IN=id;return admin()}W(`<h1 class="s">PUERTA</h1><div id="pres" class="pres">Verificando…</div><button class="btn pri" onclick="atab('puerta')">Escanear otra con la página</button><button class="back" onclick="salirAdmin()">Salir</button>`);ping(id)}
 /* puerta: escáner de QR */
 let CAM=null,LAST="",LT=0;
 function puerta(){$("#ab").innerHTML=`<div id="pres" class="pres">Apuntá la cámara al QR de la entrada</div><video id="v" playsinline muted></video><canvas id="cv" hidden></canvas><button class="btn pri" id="camb" onclick="startCam()">Activar cámara</button><label>O escribí el código de la entrada</label><input id="pc" placeholder="PENA-AB12C-1" autocapitalize="characters" onkeydown="if(event.key==='Enter')ping(this.value)"><button class="btn" onclick="ping($('#pc').value)">Registrar ingreso</button>`}
 async function startCam(){try{CAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});const v=$("#v");v.srcObject=CAM;await v.play();$("#camb").style.display="none";loopCam()}catch(e){$("#pres").textContent="No se pudo abrir la cámara. Usá el código a mano."}}
 function stopCam(){if(CAM){CAM.getTracks().forEach(t=>t.stop());CAM=null}}
-function loopCam(){if(!CAM)return;const v=$("#v"),c=$("#cv");if(v&&v.readyState>=2&&window.jsQR){c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(v,0,0);const d=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:"dontInvert"});if(d&&d.data&&(d.data!==LAST||Date.now()-LT>4000)){LAST=d.data;LT=Date.now();ping(d.data)}}requestAnimationFrame(loopCam)}
-async function ping(id){id=String(id||"").trim().toUpperCase();if(!id)return;const p=$("#pres");p.className="pres";p.textContent="Verificando "+id+"…";
+let BD=null;try{if("BarcodeDetector" in window)BD=new BarcodeDetector({formats:["qr_code"]})}catch(e){}
+const hit=t=>{if(t&&(t!==LAST||Date.now()-LT>4000)){LAST=t;LT=Date.now();ping(t)}};
+let BUSY=false;function loopCam(){if(!CAM)return;const v=$("#v"),c=$("#cv");if(v&&v.readyState>=2&&BD&&!BUSY){BUSY=true;BD.detect(v).then(r=>{if(r[0])hit(r[0].rawValue)}).catch(()=>{BD=null}).finally(()=>{BUSY=false})}else if(v&&v.readyState>=2&&!BD&&window.jsQR){c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(v,0,0);const d=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:"dontInvert"});if(d&&d.data)hit(d.data)}requestAnimationFrame(loopCam)}
+const tkid=t=>(String(t||"").toUpperCase().match(/PENA-[A-Z0-9]{5}-\d{1,2}/)||[""])[0];
+async function ping(raw){const p=$("#pres"),id=tkid(raw);if(!String(raw||"").trim())return;if(!id){p.className="pres bad";p.innerHTML="<b>✖ QR NO VÁLIDO</b><small>No es una entrada de la peña.</small>";return}p.className="pres";p.textContent="Verificando "+id+"…";
  const r=await adm("ingreso",{id}).catch(()=>({ok:false,error:"Sin conexión: anotá el código y revisá la lista impresa"}));if(!r.ok){p.className="pres bad";return p.textContent=r.error}
  p.className="pres "+(r.res==="ok"?"good":r.res==="usada"?"warn":"bad");p.innerHTML=`<b>${r.res==="ok"?"✔ PUEDE PASAR":r.res==="usada"?"⚠ YA USADA":"✖ NO PASA"}</b>${r.nombre?`<span>${esc(r.nombre)}</span>`:""}<small>${esc(r.msg)}</small>`;if(navigator.vibrate)navigator.vibrate(r.res==="ok"?80:[60,60,60])}
 
 /* ---------- arranque ---------- */
 const D=[["guitar",3,8,120,-18,"d1"],["mate",86,5,100,12,"d2"],["flag",90,28,110,8,"d3"],["poncho",2,33,110,-8,"d4"],["bombo",85,55,120,-10,"d1"],["hat",3,58,110,10,"d2"],["note",10,84,80,-12,"d3"],["empanada",80,84,100,8,"d4"],["sun",44,91,80,0,"d2"],["note",92,78,70,14,"d1"],["mate",40,-2,90,-8,"d4"],["guitar",70,68,100,20,"d3"]];
 $("#deco").innerHTML=D.map(([n,x,y,z,r,c])=>`<svg viewBox="0 0 100 100" style="left:${x}%;top:${y}%;width:${z}px;height:${z}px;transform:rotate(${r}deg);color:var(--${c})"><use href="#${n}"/></svg>`).join("");
-function route(){if(location.hash==="#admin")return admin();home()}
+function route(){if(location.hash.indexOf("#in=")===0)return inq(decodeURIComponent(location.hash.slice(4)));if(location.hash==="#admin")return admin();home()}
 async function start(){W("<p>Cargando…</p>");try{await loadData()}catch(e){}const m=new URLSearchParams(location.search).get("m");if(m)F.pre=m;
- if(location.hash==="#admin")return admin();if(F.pre&&LOADED&&KIDS.includes(F.pre)&&disp(F.pre))return buy(1);home()}
+ if(location.hash.indexOf("#in=")===0||location.hash==="#admin")return route();if(F.pre&&LOADED&&KIDS.includes(F.pre)&&disp(F.pre))return buy(1);home()}
 addEventListener("hashchange",route);
 start();
 
