@@ -16,7 +16,8 @@ const TZ = "America/Argentina/Buenos_Aires";
 const MAESTRA = "1ff9dWtfo3Pg8UeySRfsGUJ7FyAz53AEWu0VNmQFzmWY"; /* ¡San Pedro 2027! */
 const ASISTENCIA = "Asistencia ";
 const PUERTA = "Venta en puerta";
-const PAGO_TXT = "Entregale la plata a Nacho: en efectivo en los encuentros de los domingos o como te digan los coordinadores.";
+const PAGO_TXT = "Podés pagar en efectivo a un coordinador (en los encuentros de los domingos) o por transferencia con el QR del grupo y mandarle el comprobante a un coordinador.";
+const PAGO_TXT_VIEJO = "Entregale la plata a Nacho: en efectivo en los encuentros de los domingos o como te digan los coordinadores.";
 const AMARILLO = "#fff2cc";
 
 function SS() { return SpreadsheetApp.getActiveSpreadsheet(); }
@@ -233,6 +234,10 @@ function esquema() {
     if (props.getProperty("esquema") === ESQUEMA) return;
     const ss = SS(), mi = ss.getSheetByName("Misioneros"), rs = ss.getSheetByName("Resumen"), le = ss.getSheetByName("Léeme");
     if (mi) mi.getRange(1, 5).setFormula(F_FALTA);
+    const cf = ss.getSheetByName("Config");
+    if (cf && cf.getLastRow() >= 2) cf.getRange(2, 1, cf.getLastRow() - 1, 2).getValues().forEach((r, i) => {
+      if (String(r[0]).trim() === "Cómo pagan los misioneros" && (String(r[1]).trim() === PAGO_TXT_VIEJO || String(r[1]).trim() === "")) cf.getRange(i + 2, 2).setValue(PAGO_TXT);
+    });
     if (rs) { rs.getRange("B5").setFormula("=" + F_CUPOS + "-B3"); rs.getRange("B10").setFormula("=" + F_CUPOS + "*Config!B2"); }
     if (le) le.getRange(17, 1, 3, 1).setValues([
       ["No ordenar ni insertar columnas en Misioneros. Los nombres se corrigen en Asistencia (si se cambian acá, aparece el nombre viejo de nuevo)."],
