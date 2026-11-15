@@ -227,7 +227,8 @@ function preparar(forzar) {
     const v = k => viejo[k] == null ? "" : viejo[k];
 
     /* 2. Hojas nuevas (con nombre provisorio) */
-    const tmp = ss.insertSheet("_nueva_lista"), mi = ss.insertSheet("_nueva_misioneros"), rs = ss.insertSheet("_nuevo_resumen"), le = ss.insertSheet("_nuevo_leeme"), co = ss.insertSheet("_nueva_config");
+    const sfx = "_" + Date.now();
+    const tmp = ss.insertSheet("_nueva_lista" + sfx), mi = ss.insertSheet("_nueva_misioneros" + sfx), rs = ss.insertSheet("_nuevo_resumen" + sfx), le = ss.insertSheet("_nuevo_leeme" + sfx), co = ss.insertSheet("_nueva_config" + sfx);
 
     /* Lista */
     tmp.getRange(1, 1, 1, 6).setValues([["Nombre y apellido", "Misionero", "Teléfono", "Entró (hora)", "Cargada el", "ID"]]).setFontWeight("bold").setBackground("#553a1e").setFontColor("#ffffff");
@@ -304,7 +305,10 @@ function preparar(forzar) {
     le.getRange(1, 1, t.length, 1).setValues(t); le.getRange("A1").setFontWeight("bold").setFontSize(14); le.setColumnWidth(1, 900);
 
     /* 3. Borrar todo lo viejo y dejar los nombres definitivos */
-    ["Lista", "Chicos", "Extras y cupos", "Bandas", "Menú", "Entradas", "Entradas (sistema viejo)", "Pagos misioneros", "Resumen", "Léeme", "Config"].forEach(n => { const s = ss.getSheetByName(n); if (s) ss.deleteSheet(s); });
+    /* se borra TODA hoja que no sea una de las 5 nuevas (incluye restos de un intento anterior) */
+    const nuevas = [le, tmp, mi, rs, co].map(s => s.getSheetId());
+    ss.getSheets().forEach(s => { if (nuevas.indexOf(s.getSheetId()) < 0) ss.deleteSheet(s); });
+    SpreadsheetApp.flush();
     le.setName("Léeme"); tmp.setName("Lista"); mi.setName("Misioneros"); rs.setName("Resumen"); co.setName("Config");
     /* las fórmulas apuntan a Lista/Config por nombre: se reescriben ahora que existen */
     mi.getRange(1, 3).setFormula('={"Cargadas";ARRAYFORMULA(IF(A2:A="","",COUNTIF(Lista!B2:B,A2:A)))}');
