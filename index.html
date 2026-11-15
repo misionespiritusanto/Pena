@@ -78,7 +78,7 @@ foot{display:block;margin-top:20px;color:var(--mut);font-size:.85rem}foot a{colo
 <script>
 /* ===== Peña · Grupo Misionero Espíritu Santo — lista de entradas =====
    Cada misionero entra con su nombre y carga a las personas que le compraron entrada.
-   Los datos viven en el Google Sheet "Pena_Entradas" (pestañas Lista, Chicos, Pagos misioneros).
+   Los datos viven en el Google Sheet "Pena_Entradas" (pestañas Lista, Misioneros, Resumen, Config).
    El código del servidor está en apps-script/Codigo.gs. */
 const API="https://script.google.com/macros/s/AKfycbyHwrL31UsxNLst1huri44hHTprQbkNJjTtWNSfmIIcW4B-srRQtbTZmLHPsBEM4eGdvA/exec";
 const CFG={price:15000,per:4,date:"",where:"",wa:"5491170544319",mail:"ignaciozavalia1@gmail.com",pagoTxt:"",clave:false};
@@ -145,7 +145,7 @@ function mio(r,msg){R=r;if(AV[r.kid])AV[r.kid].k=r.items.length;const n=r.items.
  ${n?r.items.map((x,i)=>`<div class="row" style="align-items:center"><span>${i+1}. ${esc(x.n)}${x.tel?`<small class="mut" style="display:block;font-size:.85rem">${esc(x.tel)}</small>`:""}</span>${x.ing?`<span class="tag t-Pagada">Entró ${esc(x.ing)}</span>`:`<button class="chip" style="flex:none" onclick="borrar('${esc(x.id)}',this)">Borrar</button>`}</div>`).join(""):`<p class="mut" style="text-align:center;margin:8px 0 0">Todavía no cargaste a nadie.</p>`}</div>
  ${msg?`<div class="card ok">${msg}</div>`:""}
  ${n<c?`<h2 style="margin-top:18px">Cargar una persona</h2><label>Nombre y apellido <span class="mut" style="font-weight:500">(de quien va a la peña)</span></label><input id="n" autocomplete="off" autocapitalize="words" onkeydown="if(event.key==='Enter')$('#t').focus()"><label>Teléfono <span class="mut" style="font-weight:500">(opcional)</span></label><input id="t" type="tel" autocomplete="off" onkeydown="if(event.key==='Enter')cargar()"><div id="err"></div><button class="btn pri" onclick="cargar()">Cargar entrada</button><p class="mut" style="font-size:.88rem">Te ${c-n===1?"queda":"quedan"} ${c-n} por cargar.</p>`:`<div class="card" style="margin-top:12px"><p style="margin:0"><b>¡Cargaste tus ${c} entradas! 🎉</b> Si vendiste más, primero fijate si a otro misionero le quedan lugares; si no, pedile a un coordinador que te suba el cupo.</p></div>`}
- <div class="card" style="margin-top:14px"><h2>Plata</h2><div class="row"><span>Tenés que entregar</span><b>${money(r.debe)}</b></div><div class="row"><span>Entregaste</span><b>${money(r.pagado)}</b></div>${falta?`<div class="row"><span>Te falta entregar</span><b>${money(falta)}</b></div>`:`<p style="margin:8px 0 0">✅ Estás al día. ¡Gracias!</p>`}<p class="mut" style="font-size:.88rem;margin-bottom:0">${Math.max(c,n)} × ${money(r.price)}. Las ${c} entradas se pagan aunque no las vendas. ${esc(r.pagoTxt||"")}</p></div>
+ <div class="card" style="margin-top:14px"><h2>Plata</h2><div style="text-align:center;font-size:1.15rem;margin:6px 0">Entregaste <b style="color:var(--acc)">${money(r.pagado)}</b> de <b>${money(r.debe)}</b></div><div class="prog" style="margin:8px 0"><b style="width:${r.debe?Math.min(100,r.pagado/r.debe*100):0}%"></b></div>${falta?"":`<p style="margin:8px 0 0;text-align:center">✅ ¡Estás al día! Gracias.</p>`}<p class="mut" style="font-size:.88rem;margin-bottom:0">Lo anotan los coordinadores cuando les entregás la plata, así que puede tardar en aparecer. ${esc(r.pagoTxt||"")} Las ${c} entradas se pagan aunque no las vendas.</p></div>
  ${wa()}<button class="back" onclick="home()">‹ Inicio</button><button class="back" onclick="cambiar()">No soy ${esc(first(r.kid))}</button>`);
  if(n<c&&msg)$("#n").focus()}
 async function cargar(force){const name=$("#n").value.replace(/\s+/g," ").trim(),tel=$("#t").value.trim(),e=$("#err");
@@ -193,30 +193,29 @@ async function vender(b){const n=$("#vn").value.replace(/\s+/g," ").trim();if(n.
  T.lista.push({id:r.id,f:"",kid:T.puerta,n,tel:"",ing:r.ing});pres("good","✔ PUEDE PASAR · cobrá "+money(T.price),n);$("#pq").value="";$("#pr").innerHTML="";$("#pq").focus()}
 
 /* misioneros: cuántas cargó cada uno y cuánta plata entregó */
-function misData(){const by={},pg={};T.lista.forEach(x=>{(by[x.kid]=by[x.kid]||[]).push(x)});T.pagos.forEach(p=>{(pg[p.kid]=pg[p.kid]||[]).push(p)});
- const L=T.chicos.map(c=>({n:c.n,c:c.c,ok:1}));Object.keys(by).concat(Object.keys(pg)).forEach(k=>{if(k!==T.puerta&&!L.some(x=>x.n===k)){L.push({n:k,c:0,ok:0})}});
- L.forEach(x=>{x.it=by[x.n]||[];x.pg=pg[x.n]||[];x.k=x.it.length;x.debe=Math.max(x.c,x.k)*T.price;x.pag=x.pg.reduce((s,p)=>s+p.m,0);x.saldo=x.debe-x.pag});return L}
-function misV(){const L=misData(),deb=L.reduce((s,x)=>s+Math.max(0,x.saldo),0),sin=L.filter(x=>x.k<x.c).length;
- $("#ab").innerHTML=`<div class="card"><div class="row"><span>Falta que entreguen</span><b>${money(deb)}</b></div><div class="row"><span>Misioneros que no cargaron todas</span><b>${sin}</b></div></div>
+function misData(){const by={};T.lista.forEach(x=>{(by[x.kid]=by[x.kid]||[]).push(x)});
+ const L=T.chicos.map(c=>({n:c.n,c:c.c,pag:Number(c.pag)||0,est:c.est||"",ok:1}));Object.keys(by).forEach(k=>{if(k!==T.puerta&&!L.some(x=>x.n===k))L.push({n:k,c:0,pag:0,est:"No está en la pestaña Misioneros",ok:0})});
+ L.forEach(x=>{x.it=by[x.n]||[];x.k=x.it.length;x.debe=x.c*T.price;x.saldo=x.debe-x.pag});return L}
+function misV(){
+ $("#ab").innerHTML=`<div class="card" id="msum"></div>
  <div class="chips" style="margin-top:12px">${[["todos","Todos"],["deben","Deben plata"],["faltan","Faltan cargar"]].map(([k,n])=>`<button class="chip ${MF===k?"on":""}" onclick="MF='${k}';MX=-1;misV()">${n}</button>`).join("")}</div><input id="mq" placeholder="Buscar misionero" oninput="misL()" autocomplete="off"><div id="ml"></div>`;misL()}
-function misL(){const L=misData(),ws=words($("#mq")?$("#mq").value:"");let V=L.map((x,i)=>Object.assign(x,{i})).filter(x=>matches(x.n,ws));
+function misL(){const L=misData(),ws=words($("#mq")?$("#mq").value:"");$("#msum").innerHTML=`<div class="row"><span>Falta que entreguen</span><b>${money(L.reduce((s,x)=>s+Math.max(0,x.saldo),0))}</b></div><div class="row"><span>Misioneros que no cargaron todas</span><b>${L.filter(x=>x.k<x.c).length}</b></div>`;let V=L.map((x,i)=>Object.assign(x,{i})).filter(x=>matches(x.n,ws));
  if(MF==="deben")V=V.filter(x=>x.saldo>0);if(MF==="faltan")V=V.filter(x=>x.k<x.c);
- $("#ml").innerHTML=V.map(x=>`<button class="item" onclick="MX=${MX===x.i?-1:x.i};misL()"><b>${esc(x.n)}</b>${x.ok?"":" ⚠"}<small>${x.k} de ${x.c} cargadas · ${x.saldo>0?"debe "+money(x.saldo):x.saldo<0?"a favor "+money(-x.saldo):"al día ✅"}</small></button>${MX===x.i?misD(x):""}`).join("")||`<p class="mut">No hay misioneros con ese filtro.</p>`}
-function misD(x){return `<div class="card" style="margin:6px 0 12px">${x.ok?"":`<p class="err" style="margin-top:0">Este nombre ya no está en la lista de chicos (¿lo corrigieron o se dio de baja?).</p>`}
+ $("#ml").innerHTML=V.map(x=>`<button class="item" onclick="MX=${MX===x.i?-1:x.i};misL()"><b>${esc(x.n)}</b>${x.est?" ⚠":""}<small>${x.k} de ${x.c} cargadas · ${x.saldo>0?"debe "+money(x.saldo):x.saldo<0?"a favor "+money(-x.saldo):"al día ✅"}</small></button>${MX===x.i?misD(x):""}`).join("")||`<p class="mut">No hay misioneros con ese filtro.</p>`}
+function misD(x){return `<div class="card" style="margin:6px 0 12px">${x.est?`<p class="err" style="margin-top:0">⚠ ${esc(x.est)} (¿le corrigieron el nombre o se dio de baja?).</p>`:""}
  <b>Personas que cargó</b>${x.it.length?x.it.map(p=>`<div class="row" style="align-items:center"><span>${esc(p.n)}${p.tel?`<small class="mut" style="display:block">${esc(p.tel)}</small>`:""}</span>${p.ing?`<span class="tag t-Pagada">Entró ${esc(p.ing)}</span>`:`<button class="chip" style="flex:none" onclick="aborrar('${p.id}',this)">Borrar</button>`}</div>`).join(""):`<p class="mut">Ninguna todavía.</p>`}
- <div style="margin-top:12px"><b>Plata</b></div><div class="row"><span>Tiene que entregar</span><b>${money(x.debe)}</b></div>${x.pg.map(p=>`<div class="row"><span class="mut">${esc(p.f)} · ${esc(p.medio)}${p.nota?" · "+esc(p.nota):""}</span><b>${money(p.m)}</b></div>`).join("")}<div class="row"><span>Saldo</span><b>${money(x.saldo)}</b></div>
- <label>Registrar pago</label><input id="pm" type="number" inputmode="numeric" step="1000" value="${x.saldo>0?x.saldo:""}" placeholder="Monto"><div class="chips" style="margin-top:8px"><button class="chip on" data-m="Efectivo" onclick="pmed(this)">Efectivo</button><button class="chip" data-m="Transferencia" onclick="pmed(this)">Transferencia</button></div><input id="pn" placeholder="Nota (opcional)"><button class="btn pri" onclick="apago(${x.i},this)">Registrar pago</button><p class="mut" style="font-size:.85rem;margin:0">Para corregir un pago mal cargado, registrá el mismo monto en negativo.</p></div>`}
-function pmed(b){document.querySelectorAll("[data-m]").forEach(c=>c.classList.toggle("on",c===b))}
-async function apago(i,b){const x=misData()[i],m=Math.round(Number($("#pm").value)||0),medio=(document.querySelector("[data-m].on")||{}).dataset.m||"Efectivo";if(!m)return toast("Escribí el monto.");
- b.disabled=true;b.textContent="Registrando…";const r=await adm("pago",{kid:x.n,monto:m,medio,nota:$("#pn").value}).catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){b.disabled=false;b.textContent="Registrar pago";return toast(r.error)}
- await cargarT();toast("✔ Pago de "+money(m)+" registrado ("+x.n+")");misL()}
+ <div style="margin-top:12px"><b>Plata</b></div><div class="row"><span>Tiene que entregar</span><b>${money(x.debe)}</b></div><div class="row"><span>Pagó hasta ahora</span><b>${money(x.pag)}</b></div><div class="row"><span>Falta</span><b>${money(x.saldo)}</b></div>
+ ${x.ok?`<label>¿Cuánto pagó en total hasta ahora?</label><input id="pm" type="number" inputmode="numeric" step="1000" min="0" value="${x.pag||""}" placeholder="0"><div class="chips" style="margin-top:8px"><button class="chip" onclick="$('#pm').value=(Number($('#pm').value)||0)+${T.price}">+ ${money(T.price)}</button><button class="chip" onclick="$('#pm').value=${x.debe}">Pagó todo (${money(x.debe)})</button></div><button class="btn pri" onclick="apago(${x.i},this)">Guardar</button><p class="mut" style="font-size:.85rem;margin:0">Es el total que entregó, no lo de hoy. Es lo mismo que la columna “Pagó” de la pestaña Misioneros de la planilla.</p>`:""}</div>`}
+async function apago(i,b){const x=misData()[i],v=$("#pm").value.trim(),m=Math.round(Number(v)||0);if(v===""||m<0)return toast("Escribí cuánto pagó en total.");
+ b.disabled=true;b.textContent="Guardando…";const r=await adm("pagado",{kid:x.n,total:m}).catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){b.disabled=false;b.textContent="Guardar";return toast(r.error)}
+ await cargarT();toast("✔ "+x.n+": pagó "+money(m)+" en total");misL()}
 async function aborrar(id,b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="¿Seguro?";b.classList.add("warn");return}b.disabled=true;const r=await adm("borrar",{id}).catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){b.disabled=false;return toast(r.error)}await cargarT();toast("Borrada.");misL()}
 
 /* resumen */
 function resV(){const L=T.lista,M=misData(),pu=L.filter(x=>x.kid===T.puerta).length,e=L.filter(x=>x.ing).length,row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
- const debe=M.reduce((s,x)=>s+x.debe,0),pag=T.pagos.reduce((s,p)=>s+p.m,0),ef=T.pagos.filter(p=>p.medio==="Efectivo").reduce((s,p)=>s+p.m,0);
+ const debe=M.reduce((s,x)=>s+x.debe,0),pag=M.reduce((s,x)=>s+x.pag,0);
  $("#ab").innerHTML=`<div class="card">${row("Entradas en la lista",L.length)}${row("· cargadas por misioneros",L.length-pu)}${row("· vendidas en la puerta",pu)}${row("Entradas sin cargar (de los cupos)",M.reduce((s,x)=>s+Math.max(0,x.c-x.k),0))}${row("Ya entraron",e)}${row("Faltan entrar",L.length-e)}${T.cap?row("Lugares libres",T.cap-L.length):""}</div>
- <div class="card" style="margin-top:12px">${row("Tienen que entregar los misioneros",money(debe))}${row("Ya entregaron",money(pag))}${row("· en efectivo",money(ef))}${row("· por transferencia",money(pag-ef))}${row("Falta que entreguen",money(debe-pag))}${row("Ventas en la puerta",money(pu*T.price))}${row("Total cobrado en entradas",money(pag+pu*T.price))}</div>
+ <div class="card" style="margin-top:12px">${row("Tienen que entregar los misioneros",money(debe))}${row("Ya entregaron",money(pag))}${row("Falta que entreguen",money(debe-pag))}${row("Ventas en la puerta",money(pu*T.price))}${row("Total cobrado en entradas",money(pag+pu*T.price))}</div>
  <button class="btn" onclick="imprimir()">🖨 Lista impresa de respaldo</button><button class="btn o" onclick="T=null;atab('resumen')">Actualizar</button>`}
 
 /* lista para imprimir */
