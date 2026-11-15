@@ -62,7 +62,7 @@ function misioneros(c) {
   if (n < 2) return L;
   sh.getRange(2, 1, n - 1, 6).getValues().forEach((r, i) => {
     const k = String(r[0]).trim();
-    if (k) L.push({ row: i + 2, n: k, c: r[1] === "" ? c.per : num(r[1]), pag: plata(r[3]), est: String(r[5] || "") });
+    if (k) L.push({ row: i + 2, n: k, c: (r[1] === "" || isNaN(Number(r[1]))) ? c.per : Math.max(0, Math.round(Number(r[1]))), pag: plata(r[3]), est: String(r[5] || "") });
   });
   return L;
 }
@@ -74,10 +74,25 @@ function lista() {
     row: i + 2, n: sinComilla(r[0]), kid: String(r[1]).trim(), tel: sinComilla(r[2]), ing: fmt(r[3], "HH:mm"), f: fmt(r[4], "dd/MM HH:mm"), id: String(r[5])
   })).filter(x => x.id && x.n);
 }
+function asegurarIds() {
+  const sh = SS().getSheetByName("Lista"), n = sh.getLastRow();
+  if (n < 2) return;
+  const v = sh.getRange(2, 1, n - 1, 6).getValues();
+  if (!v.some(r => String(r[0]).trim() && !String(r[5]).trim())) return;
+  conLock(() => {
+    const L = lista(), w = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+    w.forEach((r, i) => { if (String(r[0]).trim() && !String(r[5]).trim()) { const id = nuevoId(L); L.push({ id }); sh.getRange(i + 2, 6).setValue(id); if (r[4] === "") sh.getRange(i + 2, 5).setValue(new Date()); } });
+  });
+}
+function agregarFila(fila) {
+  const sh = SS().getSheetByName("Lista"); sh.appendRow(fila);
+  const r = sh.getLastRow(); sh.getRange(r, 4).setNumberFormat("HH:mm"); sh.getRange(r, 5).setNumberFormat("dd/MM HH:mm");
+}
 function nuevoId(L) { const s = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", usados = {}; L.forEach(x => usados[x.id] = 1); let id; do { id = "L-"; for (let i = 0; i < 5; i++) id += s[Math.floor(Math.random() * s.length)]; } while (usados[id]); return id; }
 
 /* ---------- datos para elegir el nombre ---------- */
 function datos() {
+  asegurarIds();
   const c = cfg(), L = lista(), cnt = {};
   L.forEach(x => cnt[x.kid] = (cnt[x.kid] || 0) + 1);
   return { ok: true, v: 3, config: { price: c.price, per: c.per, date: c.date, where: c.where, wa: c.wa, mail: c.mail, pagoTxt: c.pagoTxt, clave: !!c.claveM },
@@ -99,7 +114,7 @@ function accion(b) {
     if (mias.length >= yo.c) return { ok: false, lleno: true, error: "Ya cargaste tus " + yo.c + " entradas. Si vendiste más, pedile a un coordinador que te suba el cupo." };
     const d = L.filter(x => norm(x.n) === norm(sinComilla(name)))[0];
     if (d && !b.force) return { ok: false, dup: { n: d.n, kid: d.kid === kid ? "vos" : d.kid } };
-    SS().getSheetByName("Lista").appendRow([name, kid, tel ? "'" + sinComilla(tel) : "", "", new Date(), nuevoId(L)]);
+    agregarFila([name, kid, tel ? "'" + sinComilla(tel) : "", "", new Date(), nuevoId(L)]);
     return mis(yo, c);
   });
   if (b.action === "borrar") return conLock(() => {
@@ -121,7 +136,7 @@ function admin(b, c) {
   if (!c.claveA || String(b.clave || "") !== c.claveA) return { ok: false, error: "Clave incorrecta." };
   const op = b.op;
   if (op === "login") return { ok: true };
-  if (op === "todo") { sincronizar(false); return { ok: true, price: c.price, per: c.per, cap: c.cap, puerta: PUERTA,
+  if (op === "todo") { sincronizar(false); asegurarIds(); return { ok: true, price: c.price, per: c.per, cap: c.cap, puerta: PUERTA,
     lista: lista().map(x => ({ id: x.id, f: x.f, kid: x.kid, n: x.n, tel: x.tel, ing: x.ing })),
     chicos: misioneros(c).map(x => ({ n: x.n, c: x.c, pag: x.pag, est: x.est })) }; }
   if (op === "ingreso") return conLock(() => {
@@ -136,7 +151,7 @@ function admin(b, c) {
     const name = clean(b.name, 70);
     if (sinComilla(name).length < 3) return { ok: false, error: "Escribí el nombre de la persona." };
     const L = lista(), d = new Date(), id = nuevoId(L);
-    SS().getSheetByName("Lista").appendRow([name, PUERTA, "", d, d, id]);
+    agregarFila([name, PUERTA, "", d, d, id]);
     return { ok: true, id, ing: fmt(d, "HH:mm") };
   });
   if (op === "borrar") return conLock(() => {
@@ -145,7 +160,7 @@ function admin(b, c) {
     SS().getSheetByName("Lista").deleteRow(x.row); return { ok: true };
   });
   if (op === "pagado") return conLock(() => {
-    const x = misioneros(c).filter(m => m.n === String(b.kid || "").trim())[0], t = Math.round(Number(b.total));
+    const x = misioneros(c).filter(m => m.n === String(b.kid || "").trim())[0], t = (b.total === null || b.total === "" || b.total === undefined) ? NaN : Math.round(Number(b.total));
     if (!x) return { ok: false, error: "No encontramos a ese misionero." };
     if (!(t >= 0) || t > 10000000) return { ok: false, error: "Escribí un monto válido." };
     SS().getSheetByName("Misioneros").getRange(x.row, 4).setValue(t || "");
@@ -192,7 +207,6 @@ function sincronizar(forzar) {
     });
     maestra.forEach(k => { if (!tengo[k]) { nuevas.push([k, c.per, "", ""]); auto[k] = 1; cambio = true; } });
     const orden = nuevas.slice().sort((a, b) => a[0].localeCompare(b[0], "es"));
-    if (!cambio && orden.some((r, i) => r[0] !== String(filas[i] && filas[i][0]).trim())) cambio = true;
     if (cambio) {
       const m = orden.length, viejo = Math.max(0, n - 1);
       if (m) {
@@ -209,8 +223,26 @@ function sincronizar(forzar) {
 
 /* ---------- instalación: deja la planilla limpia (corre una sola vez) ---------- */
 function instalar() { preparar(true); sincronizar(true); }
+const ESQUEMA = "4";
+const F_FALTA = '={"Falta pagar ($)";ARRAYFORMULA(IF(A2:A="","",IF(B2:B="",Config!B3,B2:B)*Config!B2-IF(D2:D="",0,D2:D)))}';
+const F_CUPOS = 'ARRAYFORMULA(SUMPRODUCT((Misioneros!A2:A<>"")*IF(Misioneros!B2:B="",Config!B3,Misioneros!B2:B)))';
+function esquema() {
+  const props = PropertiesService.getScriptProperties();
+  if (props.getProperty("esquema") === ESQUEMA) return;
+  conLock(() => {
+    if (props.getProperty("esquema") === ESQUEMA) return;
+    const ss = SS(), mi = ss.getSheetByName("Misioneros"), rs = ss.getSheetByName("Resumen"), le = ss.getSheetByName("Léeme");
+    if (mi) mi.getRange(1, 5).setFormula(F_FALTA);
+    if (rs) { rs.getRange("B5").setFormula("=" + F_CUPOS + "-B3"); rs.getRange("B10").setFormula("=" + F_CUPOS + "*Config!B2"); }
+    if (le) le.getRange(17, 1, 3, 1).setValues([
+      ["No ordenar ni insertar columnas en Misioneros. Los nombres se corrigen en Asistencia (si se cambian acá, aparece el nombre viejo de nuevo)."],
+      ["Si se agrega una persona a mano en Lista (nombre y misionero), la página le pone el ID sola y aparece en la puerta."],
+      ["Cupo vacío = el de Config ('Entradas por misionero')."]]);
+    props.setProperty("esquema", ESQUEMA);
+  });
+}
 function preparar(forzar) {
-  if (!forzar && SS().getSheetByName("Misioneros")) return;
+  if (!forzar && SS().getSheetByName("Misioneros")) return esquema();
   conLock(() => {
     const ss = SS();
     if (!forzar && ss.getSheetByName("Misioneros")) return;
@@ -317,6 +349,8 @@ function preparar(forzar) {
     [le, tmp, mi, rs, co].forEach((s, i) => { ss.setActiveSheet(s); ss.moveActiveSheet(i + 1); });
     ss.setActiveSheet(le);
     PropertiesService.getScriptProperties().deleteProperty("auto");
+    PropertiesService.getScriptProperties().deleteProperty("esquema");
   });
+  esquema();
   CacheService.getScriptCache().remove("sync");
 }
