@@ -316,7 +316,7 @@ function preparar(forzar) {
       ["Meta de la rifa ($)", 22000000, "Lo que tiene que dejar la rifa. Se muestra como barra de avance en la página."],
       ["Fecha del sorteo", "sábado 26/12", "Se muestra en la página y en el mensaje de WhatsApp."],
       ["Cómo es el sorteo", "En vivo por las historias de Instagram", "Se muestra en la página y en el mensaje de WhatsApp."],
-      ["Instagram", "@misionespiritusanto", "Cuenta donde se hace el sorteo."],
+      ["Instagram", "@mision_espiritusanto", "Cuenta donde se hace el sorteo."],
       ["Primera entrega: fecha", "domingo 13/12", "Para esa fecha cada misionero entrega una parte de la plata."],
       ["Primera entrega: % del total", 50, "Qué parte entrega en la primera fecha (50 = la mitad)."],
       ["Segunda entrega: fecha", "domingo 20/12", "Para esa fecha tiene que estar todo pagado."],
