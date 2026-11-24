@@ -115,6 +115,11 @@ const W=(h,f)=>{stopAuto();app.innerHTML=`<div class="stamp">${h}</div>${foot}`;
 const back=f=>`<button class="back" onclick="${f}">‹ Volver</button>`;
 const ico=n=>`<svg viewBox="0 0 100 100"><use href="#${n}"/></svg>`;
 const first=s=>String(s).split(" ")[0];
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+function fechaTxt(v){const t=String(v||"").trim();if(!t)return "";if(/GMT|^\d{4}-\d{2}-\d{2}T/.test(t)){const d=new Date(t);if(!isNaN(d))return DIAS[d.getDay()]+" "+d.getDate()+" de "+MESES[d.getMonth()]}const x=t.match(/^(.*?)(\d{1,2})\/(\d{1,2})(?:\/\d{2,4})?$/);if(x&&+x[3]>=1&&+x[3]<=12)return (x[1]+(+x[2])+" de "+MESES[+x[3]-1]).replace(/\s+/g," ").trim();return t}
+function fixCfg(){CFG.sorteo=fechaTxt(CFG.sorteo);CFG.e1=fechaTxt(CFG.e1);CFG.e2=fechaTxt(CFG.e2)}
+const premT=p=>typeof p==="string"?{t:p,d:"",img:""}:p;
 const words=q=>norm(q).split(" ").filter(Boolean);
 const matches=(txt,ws)=>{const t=norm(txt);return ws.every(w=>t.includes(w))};
 async function get(q){const r=await fetch(API+(q||""));return r.json()}
@@ -124,14 +129,14 @@ const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}}
 let ME=store.get("rifa_yo"),MK=store.get("rifa_clave");
 
 /* mensaje de WhatsApp para el comprador */
-function mensaje(v,quien){const s=CFG.sorteo?`\n\n🎁 Sorteo: ${CFG.sorteo}${CFG.como?" · "+CFG.como:""}${CFG.ig?" ("+CFG.ig+")":""}`:"";
- return `¡Hola ${first(v.n)}! 🎄 Gracias por colaborar con la misión del Grupo Misionero de la Parroquia Espíritu Santo.\n\n${v.q===1?"Tu número":"Tus números"} de la Rifa Navideña: *${numsTxt(v)}*${s}\n\n¡Mucha suerte!${quien?"\n"+quien:""}`}
+function mensaje(v,quien){const so=CFG.sorteo?`\n\n🎁 Sorteo: ${cap(CFG.sorteo)}${CFG.como?" · "+CFG.como:""}${CFG.ig?" ("+CFG.ig+")":""}`:"";
+ return `¡Hola ${cap(first(v.n))}! ¿Qué tal?🎄 Te escribimos de parte del Grupo Misionero de la Parroquia Espíritu Santo. ¡Muchas gracias por colaborar con nuestra misión de verano!\n\n${v.q===1?"Tu número":"Tus números"} de la Rifa Navideña: ${numsTxt(v)}${so}\n\n¡Mucha suerte!${quien?"\n"+quien:""}`}
 const waLink=(v,quien)=>`https://wa.me/${String(v.tel).replace(/\D/g,"")}?text=${encodeURIComponent(mensaje(v,quien))}`;
 async function copiarTxt(t){try{await navigator.clipboard.writeText(t);toast("Mensaje copiado.")}catch(e){prompt("Copiá el mensaje:",t)}}
 
 /* ---------- carga de datos ---------- */
 async function loadData(){const d=await get();if(!d||!d.ok||!d.config)throw new Error((d&&d.error)||"datos");
- Object.assign(CFG,d.config);PREM=d.premios||[];TOT=d.tot||TOT;KIDS=[];AV={};(d.chicos||[]).forEach(x=>{KIDS.push(x.n);AV[x.n]={c:Number(x.c),k:Number(x.k)||0}});LOADED=true}
+ Object.assign(CFG,d.config);fixCfg();PREM=(d.premios||[]).map(premT);TOT=d.tot||TOT;KIDS=[];AV={};(d.chicos||[]).forEach(x=>{KIDS.push(x.n);AV[x.n]={c:Number(x.c),k:Number(x.k)||0}});LOADED=true}
 
 /* ---------- fotos flotando (solo en la portada) ---------- */
 function flot(on){const L=$("#flot");if(!on||!FLOT.length){L.innerHTML="";L.dataset.on="";return}if(L.dataset.on)return;L.dataset.on="1";
@@ -139,20 +144,24 @@ function flot(on){const L=$("#flot");if(!on||!FLOT.length){L.innerHTML="";L.data
  L.innerHTML=FLOT.slice(0,n).map((f,i)=>{const [x,y]=pos[i%pos.length],r=(i%2?1:-1)*(4+i%3*3),d=18+i%4*5;return `<figure class="pol" style="left:${x}%;top:${y}%;--r:${r}deg;animation-duration:${d}s;animation-delay:-${i*3}s"><img src="${esc(f)}" alt="" loading="lazy"></figure>`}).join("")}
 
 /* ---------- piezas comunes ---------- */
-function metaH(){if(!CFG.meta)return "";const v=TOT.vend*CFG.price;return `<div class="card" style="margin-top:14px"><b>Entre todos</b><div style="text-align:center;margin:6px 0"><b style="font-size:1.6rem">${TOT.vend.toLocaleString("es-AR")}</b> números vendidos</div><div class="prog"><b style="width:${Math.min(100,v/CFG.meta*100)}%"></b></div><p class="mut" style="font-size:.88rem;margin:6px 0 0;text-align:center">${money(v)} de ${money(CFG.meta)} para la misión a San Pedro</p></div>`}
-function premH(){if(!PREM.length)return "";return `<div class="card" style="margin-top:14px"><b>🎁 Premios</b><ul class="prem">${PREM.map(p=>`<li>${esc(p)}</li>`).join("")}</ul><p class="mut" style="font-size:.85rem;margin:4px 0 0">¡Y se van sumando más!</p></div>`}
-const sorteoTxt=()=>CFG.sorteo?`<div class="when">Sorteo: ${esc(CFG.sorteo)}</div>${CFG.como?`<div class="mut">${esc(CFG.como)}${CFG.ig?" · "+esc(CFG.ig):""}</div>`:""}`:"";
+function metaH(){return `<div class="card" style="margin-top:14px;text-align:center"><b>Entre todos</b><div style="margin:6px 0 0">ya vendimos <b style="font-size:1.6rem">${TOT.vend.toLocaleString("es-AR")}</b> ${TOT.vend===1?"número":"números"} 🎉</div></div>`}
+function premH(){return PREM.length?`<button class="btn" onclick="premios()">🎁 Ver los premios</button>`:""}
+let PBACK="home()";
+function premios(){const L=PREM;W(`<h1 class="s">PREMIOS</h1><div class="sub">RIFA NAVIDEÑA</div>${CFG.sorteo?`<div class="when">¡Sorteamos el ${esc(CFG.sorteo)}!</div>`:""}
+ ${L.length?L.map(p=>`<div class="card" style="margin-top:14px;padding:0;overflow:hidden">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="display:block;width:100%;max-height:300px;object-fit:cover;background:var(--line)" onerror="this.remove()">`:""}<div style="padding:12px 16px"><b style="font-size:1.15rem">🎁 ${esc(p.t)}</b>${p.d?`<p class="mut" style="margin:4px 0 0">${esc(p.d)}</p>`:""}</div></div>`).join(""):`<p>Pronto vas a ver los premios acá.</p>`}
+ <p class="mut" style="text-align:center;font-size:.9rem;margin-top:12px">¡Y se van sumando más!</p>${back(PBACK)}`)}
+const sorteoTxt=()=>CFG.sorteo?`<div class="when">¡Sorteamos el ${esc(CFG.sorteo)}!</div>${CFG.como?`<div class="mut">${esc(CFG.como)}${CFG.ig?" · "+esc(CFG.ig):""}</div>`:""}`:"";
 
 /* ---------- portada ---------- */
-function home(){if(!LOADED)return W(`<h1>RIFA${cross}</h1><p>No pudimos cargar los datos. Revisá tu internet.</p><button class="btn pri" onclick="start()">Reintentar</button>${wa()}`);
+function home(){PBACK="home()";if(!LOADED)return W(`<h1>RIFA${cross}</h1><p>No pudimos cargar los datos. Revisá tu internet.</p><button class="btn pri" onclick="start()">Reintentar</button>${wa()}`);
  if(ME&&!KIDS.includes(ME)){ME="";store.set("rifa_yo","")}
  W(`<h1>RIFA${cross}</h1><div class="sub">NAVIDEÑA · GRUPO MISIONERO · PARROQUIA ESPÍRITU SANTO</div>${sorteoTxt()}<div class="ico">${["tree","gift","star","ticket","bell"].map(ico).join("")}</div>
  <p><b>Página para misioneros.</b> Anotá acá cada rifa que vendés: la página le asigna los números al comprador y te arma el mensaje para mandárselos por WhatsApp.</p><div class="price">${money(CFG.price)}</div><div class="mut">cada número · ${CFG.per} por misionero</div>
- ${ME?`<button class="btn pri" onclick="yo()">Mis rifas · ${esc(ME)}</button><button class="btn" onclick="como()">¿Cómo funciona?</button><button class="back" onclick="cambiar()">No soy ${esc(first(ME))}</button>`:`<button class="btn pri" onclick="elegir()">Soy misionero: anotar mis rifas</button><button class="btn" onclick="como()">¿Cómo funciona?</button>`}
- ${metaH()}${premH()}${wa()}`,true)}
+ ${ME?`<button class="btn pri" onclick="yo()">Mis rifas · ${esc(ME)}</button><button class="btn" onclick="como()">¿Cómo funciona?</button>${premH()}<button class="back" onclick="cambiar()">No soy ${esc(first(ME))}</button>`:`<button class="btn pri" onclick="elegir()">Soy misionero: anotar mis rifas</button><button class="btn" onclick="como()">¿Cómo funciona?</button>${premH()}`}
+ ${metaH()}${wa()}`,true)}
 
-function como(){const e=CFG.e1?`<p><b>4. Entregás la plata a los coordinadores:</b> ${CFG.e1p===50?"la mitad":CFG.e1p+"%"} para el <b>${esc(CFG.e1)}</b> y todo para el <b>${esc(CFG.e2)}</b>. En efectivo o con el QR del grupo (está en “Mis rifas”).</p>`:`<p><b>4. Entregás la plata a los coordinadores:</b> en efectivo o con el QR del grupo (está en “Mis rifas”).</p>`;
- W(`<h1 class="s">¿CÓMO FUNCIONA?</h1><div class="card"><p><b>1. Vendés tus ${CFG.per} números</b> a ${money(CFG.price)} cada uno y cobrás vos la plata.</p><p><b>2. Anotás cada venta acá:</b> nombre y apellido, celular y cuántos números compró. La página le asigna los números.</p><p><b>3. Le mandás sus números por WhatsApp</b> con el botón que aparece (el mensaje ya viene armado).</p>${e}<p><b>5. El sorteo</b> es el ${esc(CFG.sorteo||"día que avisemos")}${CFG.como?" · "+esc(CFG.como.toLowerCase()):""}.</p></div>
+function como(){const e=CFG.e1?`<p><b>4. Entregás la plata a los coordinadores:</b> ${CFG.e1p===50?"la mitad":"el "+CFG.e1p+"%"} para el <b>${esc(CFG.e1)}</b> y el resto para el <b>${esc(CFG.e2)}</b>. En efectivo o con el QR del grupo (está en “Mis rifas”).</p>`:`<p><b>4. Entregás la plata a los coordinadores:</b> en efectivo o con el QR del grupo (está en “Mis rifas”).</p>`;
+ W(`<h1 class="s">¿CÓMO FUNCIONA?</h1><div class="card"><p><b>1. Vendés tus ${CFG.per} números</b> a ${money(CFG.price)} cada uno y cobrás vos la plata.</p><p><b>2. Anotás cada venta acá:</b> nombre y apellido, celular y cuántos números compró. La página le asigna los números.</p><p><b>3. Le mandás sus números por WhatsApp</b> con el botón que aparece (el mensaje ya viene armado).</p>${e}<p><b>5. El sorteo</b> es el <b>${esc(CFG.sorteo||"día que avisemos")}</b>${CFG.como?", "+esc(CFG.como.charAt(0).toLowerCase()+CFG.como.slice(1)):""}${CFG.ig?" ("+esc(CFG.ig)+")":""}.</p></div>
  <div class="card" style="margin-top:12px"><p style="margin:0">Tus ${CFG.per} números se pagan aunque no los vendas: los que no vendas quedan <b>a tu nombre</b> y participan igual del sorteo. Si vendés más, anotalos también (se suman a lo que entregás).</p></div>${ME?`<button class="btn pri" onclick="yo()">Ir a mis rifas</button>`:`<button class="btn pri" onclick="elegir()">Anotar mis rifas</button>`}${back("home()")}`)}
 function priv(){W(`<h1 class="s">PRIVACIDAD</h1><div class="card"><p>La rifa la organiza el <b>Grupo Misionero de la Parroquia Espíritu Santo</b>.</p><p><b>Qué datos guardamos:</b> el nombre y apellido y el celular de cada persona que compró números, cuántos compró, qué números le tocaron y el misionero que se los vendió. Los usamos solo para la rifa: mandarle sus números y avisarle si gana.</p><p><b>Quién los ve:</b> los coordinadores del Grupo Misionero y el misionero que hizo la venta.</p><p>No usamos publicidad ni cookies de seguimiento, y no compartimos los datos con terceros, salvo los servicios de Google donde se guardan.</p><p><b>Tus derechos:</b> podés pedir ver, corregir o borrar tus datos escribiendo a <b>${esc(CFG.mail)}</b> (Ley 25.326).</p></div>${back("home()")}`)}
 
@@ -173,7 +182,7 @@ async function yo(){if(!ME)return elegir();W(`<h1 class="s">MIS RIFAS</h1><p cla
  mio(r)}
 function vRow(x){return `<div class="vrow"><div class="top"><span><b>${esc(x.n)}</b><small>${esc(x.tel)}</small></span><span class="nums" style="text-align:right">${x.q===1?"N° ":""}${rango(x.del,x.al)}<small style="text-align:right">${x.q} ${x.q===1?"número":"números"}</small></span></div>
  <div class="acts"><a class="chip" href="${waLink(x,ME)}" target="_blank" rel="noopener">📲 WhatsApp</a><button class="chip" onclick="copiar('${esc(x.id)}')">Copiar mensaje</button>${R.abierta?`<button class="chip" onclick="borrar('${esc(x.id)}',this)">Borrar</button>`:""}</div></div>`}
-function mio(r,nv){R=r;if(r.tot)TOT=r.tot;if(AV[r.kid])AV[r.kid].k=r.vend;CFG.abierta=r.abierta;
+function mio(r,nv){PBACK="mio(R)";R=r;if(r.tot)TOT=r.tot;if(AV[r.kid])AV[r.kid].k=r.vend;CFG.abierta=r.abierta;
  const V=r.items.filter(x=>!x.cierre).slice().reverse(),C=r.items.filter(x=>x.cierre),n=r.vend,c=r.cupo,falta=Math.max(0,r.debe-r.pagado),e1m=Math.round(r.debe*CFG.e1p/100);
  W(`<h1 class="s">MIS RIFAS</h1><div class="sub">${esc(r.kid.toUpperCase())}</div>
  ${nv?`<div class="card ok" style="margin-top:14px"><p style="margin-top:0">✔ Anotaste a <b>${esc(nv.n)}</b>: ${nv.q===1?"número":"números"} <span class="nums">${rango(nv.del,nv.al)}</span>.</p><p style="margin:0 0 4px"><b>Ahora mandale sus números:</b></p><a class="btn pri" href="${waLink(nv,ME)}" target="_blank" rel="noopener">📲 Mandarle sus números por WhatsApp</a><button class="btn o" style="margin-bottom:0" onclick="copiar('${esc(nv.id)}')">Copiar mensaje</button></div>`:""}
@@ -182,9 +191,9 @@ function mio(r,nv){R=r;if(r.tot)TOT=r.tot;if(AV[r.kid])AV[r.kid].k=r.vend;CFG.ab
  <div class="card" style="margin-top:14px"><h2>Mis ventas</h2>${V.length?V.map(vRow).join(""):`<p class="mut" style="margin:6px 0 0">Todavía no anotaste ninguna venta.</p>`}
  ${C.length?`<div class="vrow"><div class="top"><span><b>A tu nombre (no vendidos)</b><small>Los pagaste, así que participan del sorteo</small></span><span class="nums" style="text-align:right">${C.map(x=>rango(x.del,x.al)).join(", ")}</span></div></div>`:""}</div>
  <div class="card" style="margin-top:14px"><h2>Plata</h2><div style="text-align:center;font-size:1.15rem;margin:6px 0">Entregaste <b style="color:var(--acc)">${money(r.pagado)}</b> de <b>${money(r.debe)}</b></div><div class="prog" style="margin:8px 0"><b style="width:${r.debe?Math.min(100,r.pagado/r.debe*100):0}%"></b></div>
- ${CFG.e1?`<div class="row"><span>Para el ${esc(CFG.e1)} (${CFG.e1p===50?"la mitad":CFG.e1p+"%"})</span><b>${money(e1m)}${r.pagado>=e1m?" ✅":""}</b></div>`:""}${CFG.e2?`<div class="row"><span>Para el ${esc(CFG.e2)} (todo)</span><b>${money(r.debe)}${r.pagado>=r.debe?" ✅":""}</b></div>`:""}
+ ${CFG.e1?`<div class="row"><span>Para el ${esc(CFG.e1)} se entrega ${CFG.e1p===50?"la mitad":"el "+CFG.e1p+"%"}</span><b>${money(e1m)}${r.pagado>=e1m?" ✅":""}</b></div>`:""}${CFG.e2?`<div class="row"><span>Para el ${esc(CFG.e2)} se entrega todo</span><b>${money(r.debe)}${r.pagado>=r.debe?" ✅":""}</b></div>`:""}
  ${falta?`<button class="btn" onclick="verQR(this,${falta})">📲 Pagar con QR (transferencia)</button><div id="qrbox"></div>`:`<p style="margin:8px 0 0;text-align:center">✅ ¡Estás al día! Gracias.</p>`}<p class="mut" style="font-size:.88rem;margin-bottom:0">${esc(r.pagoTxt||"")} Lo anotan los coordinadores cuando les llega la plata, así que puede tardar en aparecer. ${c?`Tus ${c} números se pagan aunque no los vendas${n>c?"; como vendiste más, entregás lo que vendiste":""}.`:"Entregás lo que vendas."}</p></div>
- ${metaH()}${premH()}
+ ${metaH()}<div style="margin-top:14px">${premH()}</div>
  ${wa()}<button class="back" onclick="home()">‹ Inicio</button><button class="back" onclick="cambiar()">No soy ${esc(first(r.kid))}</button>`)}
 function qd(d){Q=Math.max(1,Math.min(100,Q+d));$("#qv").textContent=Q;$("#qt").textContent=money(Q*(R?R.price:CFG.price))}
 function copiar(id){const x=R.items.find(y=>y.id===id);if(x)copiarTxt(mensaje(x,ME))}
@@ -219,7 +228,7 @@ function stopAuto(){if(AUTO){clearInterval(AUTO);AUTO=null}}
 function admin(){if(!K)return W(`<h1 class="s">ADMIN</h1><label>Clave</label><input id="ak" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')alog()"><label class="opt"><input type="checkbox" id="arec"> <span>Recordar en este celular</span></label><p id="err" class="err"></p><button class="btn pri" onclick="alog()">Entrar</button>${back("salirAdmin()")}`);atab(TAB)}
 async function alog(){const b=$(".btn.pri");b.disabled=true;K=$("#ak").value;const r=await adm("login").catch(()=>({ok:false,error:"Sin conexión"}));b.disabled=false;if(!r.ok){K="";return $("#err").textContent=r.error}try{($("#arec")&&$("#arec").checked?localStorage:sessionStorage).setItem("rk",K)}catch(e){}atab("misioneros")}
 function salirAdmin(){K="";T=null;try{sessionStorage.removeItem("rk");localStorage.removeItem("rk")}catch(e){}location.hash="";start()}
-async function cargarT(){const r=await adm("todo").catch(()=>({ok:false,error:"Sin conexión"}));if(r.ok){T=r;T.at=Date.now();Object.assign(CFG,r.config||{});PREM=r.premios||PREM}else if(/Clave/.test(r.error||"")){K="";try{sessionStorage.removeItem("rk");localStorage.removeItem("rk")}catch(e){}}return r}
+async function cargarT(){const r=await adm("todo").catch(()=>({ok:false,error:"Sin conexión"}));if(r.ok){T=r;T.at=Date.now();Object.assign(CFG,r.config||{});fixCfg();PREM=(r.premios||PREM).map(premT)}else if(/Clave/.test(r.error||"")){K="";try{sessionStorage.removeItem("rk");localStorage.removeItem("rk")}catch(e){}}return r}
 async function atab(t){TAB=t;const tabs=[["misioneros","Misioneros"],["ventas","Ventas"],["resumen","Resumen"],["sorteo","Sorteo"]];
  W(`<h1 class="s">ADMIN</h1><div class="tabs">${tabs.map(([k,n])=>`<button class="${k===t?"on":""}" onclick="atab('${k}')">${n}</button>`).join("")}</div><div id="ab"><p class="mut">Cargando…</p></div><button class="back" onclick="salirAdmin()">Salir</button>`);
  if(!T||Date.now()-T.at>15000){const r=await cargarT();if(!r.ok){if(!K)return admin();return $("#ab").innerHTML=`<p class="err">${esc(r.error)}</p><button class="btn" onclick="atab('${t}')">Reintentar</button>`}}
@@ -249,7 +258,7 @@ async function aborrar(id,b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textConte
 function venV(){$("#ab").innerHTML=`<input id="vq" placeholder="Nombre, celular o número de rifa" oninput="venL()" autocomplete="off"><div id="vl"></div>`;$("#vq").focus();venL()}
 function venL(){const q=$("#vq").value.trim(),d=q.replace(/\D/g,""),ws=words(q);let L=T.ventas;
  if(!q){L=L.filter(x=>!isC(x)).slice(-15).reverse()}else if(/^\d{1,5}$/.test(q)){const n=Number(q);L=L.filter(x=>n>=x.del&&n<=x.al||(d.length>=4&&String(x.tel).replace(/\D/g,"").includes(d)))}else{L=L.filter(x=>matches(x.n+" "+x.kid,ws)||(d.length>=4&&String(x.tel).replace(/\D/g,"").includes(d)))}
- $("#vl").innerHTML=(q?"":`<p class="mut" style="font-size:.9rem">Últimas ventas anotadas:</p>`)+L.slice(0,40).map(x=>`<div class="card ac"><div class="ach"><b>${esc(x.n)}</b><span class="nums">${rango(x.del,x.al)}</span></div><div class="mut" style="font-size:.9rem">${esc(x.tel)}${x.tel?" · ":""}${x.q} ${x.q===1?"número":"números"} · vendió ${esc(x.kid)}${x.f?" · "+esc(x.f):""}</div><div class="acts">${x.tel?`<a class="btn o" href="${waLink(x,"")}" target="_blank" rel="noopener">📲 WhatsApp</a>`:""}<button class="btn o" onclick="aborrar('${x.id}',this)">Borrar</button></div></div>`).join("")+(L.length>40?`<p class="mut">Hay más: buscá más específico.</p>`:"")+(q&&!L.length?`<p>No encontramos nada.</p>`:"")}
+ $("#vl").innerHTML=(q?"":`<p class="mut" style="font-size:.9rem">Últimas ventas anotadas:</p>`)+L.slice(0,40).map(x=>`<div class="card ac"><div class="ach"><b>${esc(x.n)}</b><span class="nums">${rango(x.del,x.al)}</span></div><div class="mut" style="font-size:.9rem">${esc(x.tel)}${x.tel?" · ":""}${x.q} ${x.q===1?"número":"números"} · vendió ${esc(x.kid)}${x.f?" · "+esc(x.f):""}</div><div class="acts">${x.tel?`<a class="btn o" href="${waLink(x,x.kid)}" target="_blank" rel="noopener">📲 WhatsApp</a>`:""}<button class="btn o" onclick="aborrar('${x.id}',this)">Borrar</button></div></div>`).join("")+(L.length>40?`<p class="mut">Hay más: buscá más específico.</p>`:"")+(q&&!L.length?`<p>No encontramos nada.</p>`:"")}
 
 /* resumen */
 function resV(){const M=misData(),A=M.filter(x=>!x.est),V=T.ventas,row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;

@@ -47,6 +47,18 @@ function conLock(fn) { const l = LockService.getScriptLock(); l.waitLock(25000);
 function siNo(v) { return !/^(no|n|false|0|cerrada)$/i.test(String(v == null ? "" : v).trim()); }
 
 /* Teléfono argentino → "549" + 10 dígitos (o "" si no se entiende). Acepta 11 2345-6789, 15 2345-6789, +54 9 11..., 0221 15 ... */
+/* Fechas: la planilla a veces convierte "sábado 26/12" en fecha. Siempre devolvemos "sábado 26 de diciembre". */
+const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+function fechaLinda(v) {
+  if (Object.prototype.toString.call(v) === "[object Date]") {
+    const u = Number(Utilities.formatDate(v, TZ, "u")) % 7, d = Number(Utilities.formatDate(v, TZ, "d")), m = Number(Utilities.formatDate(v, TZ, "M"));
+    return DIAS[u] + " " + d + " de " + MESES[m - 1];
+  }
+  const s = String(v == null ? "" : v).trim(), x = s.match(/^(.*?)(\d{1,2})\/(\d{1,2})(?:\/\d{2,4})?$/);
+  if (x && Number(x[3]) >= 1 && Number(x[3]) <= 12) return (x[1] + Number(x[2]) + " de " + MESES[Number(x[3]) - 1]).replace(/\s+/g, " ").trim();
+  return s;
+}
 function telAR(s) {
   let d = String(s == null ? "" : s).replace(/\D/g, "");
   if (d.indexOf("00") === 0) d = d.slice(2);
@@ -67,8 +79,8 @@ function cfg() {
     price: num(m["Precio del número ($)"]) || 5000,
     per: m["Números por misionero"] === "" || m["Números por misionero"] == null ? 40 : num(m["Números por misionero"]),
     meta: num(m["Meta de la rifa ($)"]),
-    sorteo: s("Fecha del sorteo"), como: s("Cómo es el sorteo"), ig: s("Instagram"),
-    e1: s("Primera entrega: fecha"), e1p: num(m["Primera entrega: % del total"]) || 50, e2: s("Segunda entrega: fecha"),
+    sorteo: fechaLinda(m["Fecha del sorteo"]), como: s("Cómo es el sorteo"), ig: s("Instagram"),
+    e1: fechaLinda(m["Primera entrega: fecha"]), e1p: num(m["Primera entrega: % del total"]) || 50, e2: fechaLinda(m["Segunda entrega: fecha"]),
     abierta: siNo(m["Venta abierta"]),
     pagoTxt: s("Cómo pagan los misioneros") || PAGO_TXT,
     wa: s("WhatsApp de contacto").replace(/\D/g, ""), mail: s("Mail de contacto"),
@@ -131,17 +143,20 @@ function completarAMano() {
   });
 }
 
-/* ---------- premios (pestaña "rifas" de la maestra) ---------- */
+/* ---------- premios (pestaña "Premios": Premio · Descripción · Imagen; el orden de las filas es el orden en la página) ---------- */
+function imgUrl(v) {
+  const s = String(v == null ? "" : v).trim();
+  if (!s) return "";
+  const id = (s.match(/\/d\/([\w-]{20,})/) || s.match(/[?&]id=([\w-]{20,})/) || [])[1];
+  if (id) return "https://drive.google.com/thumbnail?id=" + id + "&sz=w1000";
+  return /^https:\/\//.test(s) ? s : "";
+}
 function premios() {
-  const cache = CacheService.getScriptCache(), c = cache.get("premios");
-  if (c) return JSON.parse(c);
-  let L = [];
-  try {
-    const sh = SpreadsheetApp.openById(MAESTRA).getSheetByName(HOJA_PREMIOS);
-    if (sh) L = sh.getRange("A5:A80").getDisplayValues().map(r => String(r[0]).replace(/\s+/g, " ").trim()).filter(x => x && !/^premio$/i.test(x));
-  } catch (e) { L = []; }
-  cache.put("premios", JSON.stringify(L), 600);
-  return L;
+  const sh = SS().getSheetByName("Premios");
+  if (!sh) return [];
+  const n = sh.getLastRow();
+  if (n < 2) return [];
+  return sh.getRange(2, 1, n - 1, 3).getValues().map(r => ({ t: String(r[0]).replace(/\s+/g, " ").trim(), d: String(r[1]).trim(), img: imgUrl(r[2]) })).filter(x => x.t);
 }
 
 /* ---------- datos para la portada ---------- */
@@ -306,7 +321,7 @@ function preparar(forzar) {
     const ss = SS();
     if (ss.getSheetByName("Ventas")) return;
     const sfx = "_" + Date.now();
-    const le = ss.insertSheet("_leeme" + sfx), ve = ss.insertSheet("_ventas" + sfx), mi = ss.insertSheet("_misioneros" + sfx), rs = ss.insertSheet("_resumen" + sfx), co = ss.insertSheet("_config" + sfx);
+    const pr = ss.insertSheet("_premios" + sfx), le = ss.insertSheet("_leeme" + sfx), ve = ss.insertSheet("_ventas" + sfx), mi = ss.insertSheet("_misioneros" + sfx), rs = ss.insertSheet("_resumen" + sfx), co = ss.insertSheet("_config" + sfx);
     const head = (sh, n) => sh.getRange(1, 1, 1, n).setFontWeight("bold").setBackground("#553a1e").setFontColor("#ffffff");
 
     /* Ventas */
@@ -315,18 +330,22 @@ function preparar(forzar) {
     ve.getRange("H1:H6000").setFontColor("#999999");
     [240, 170, 80, 80, 80, 220, 110, 80].forEach((w, i) => ve.setColumnWidth(i + 1, w));
 
+    /* Premios */
+    pr.getRange(1, 1, 1, 3).setValues([["Premio", "Descripción (opcional)", "Imagen (link de la foto en Drive o en internet)"]]); head(pr, 3);
+    pr.setFrozenRows(1); pr.getRange("A2:C60").setBackground(AMARILLO).setWrap(true); pr.setColumnWidth(1, 260); pr.setColumnWidth(2, 300); pr.setColumnWidth(3, 380);
+
     /* Config */
     const conf = [
       ["Parámetro", "Valor", "Para qué sirve"],
       ["Precio del número ($)", 5000, "Lo cobra el misionero y se lo entrega a los coordinadores."],
       ["Números por misionero", 40, "Cupo de cada misionero (mínimo que paga aunque no lo venda). En la pestaña Misioneros se puede cambiar el de cada uno."],
       ["Meta de la rifa ($)", 22000000, "Lo que tiene que dejar la rifa. Se muestra como barra de avance en la página."],
-      ["Fecha del sorteo", "sábado 26/12", "Se muestra en la página y en el mensaje de WhatsApp."],
-      ["Cómo es el sorteo", "En vivo por las historias de Instagram", "Se muestra en la página y en el mensaje de WhatsApp."],
+      ["Fecha del sorteo", "sábado 26 de diciembre", "Se muestra en la página y en el mensaje de WhatsApp."],
+      ["Cómo es el sorteo", "En vivo por nuestras historias de Instagram", "Se muestra en la página y en el mensaje de WhatsApp."],
       ["Instagram", "@mision_espiritusanto", "Cuenta donde se hace el sorteo."],
-      ["Primera entrega: fecha", "domingo 13/12", "Para esa fecha cada misionero entrega una parte de la plata."],
+      ["Primera entrega: fecha", "domingo 13 de diciembre", "Para esa fecha cada misionero entrega una parte de la plata."],
       ["Primera entrega: % del total", 50, "Qué parte entrega en la primera fecha (50 = la mitad)."],
-      ["Segunda entrega: fecha", "domingo 20/12", "Para esa fecha tiene que estar todo pagado."],
+      ["Segunda entrega: fecha", "domingo 20 de diciembre", "Para esa fecha tiene que estar todo pagado."],
       ["Venta abierta", "Sí", "\"No\" = los misioneros ya no pueden anotar ni borrar ventas. Se pone sola en \"No\" con el botón Cerrar la venta del admin."],
       ["Cómo pagan los misioneros", PAGO_TXT, "Texto que ve cada misionero debajo de lo que tiene que entregar."],
       ["WhatsApp de contacto", "5491170544319", "Número para dudas (solo dígitos, con 549)."],
@@ -356,6 +375,7 @@ function preparar(forzar) {
       ["      'Tiene que entregar' = el cupo × precio, o lo que vendió si vendió más. Lo demás se calcula solo."],
       ["      ¿Alguien que no está en Asistencia? Escribir su nombre en una fila vacía al final."],
       ["Resumen → totales de números y plata."],
+      ["Premios → la lista que ven los chicos en la página (botón Ver los premios). El orden de las filas es el orden en que aparecen: para cambiarlo, arrastrá las filas. Imagen: subí la foto a la carpeta \"Fotos premios rifa\" (Infraestructura), tocá Compartir > Copiar vínculo y pegalo en la columna Imagen. También sirve el link de una foto de internet."],
       ["Config → precio, cupo, fechas, meta y claves (celdas amarillas)."],
       [""],
       ["Al terminar la venta: Admin > Sorteo > Cerrar la venta. Los números que cada misionero no vendió quedan a su nombre (los pagó) y participan del sorteo."],
@@ -367,10 +387,10 @@ function preparar(forzar) {
     le.getRange(1, 1, t.length, 1).setValues(t); le.getRange("A1").setFontWeight("bold").setFontSize(14); le.setColumnWidth(1, 980);
 
     /* Borrar lo demás y dejar los nombres definitivos */
-    const nuevas = [le, ve, mi, rs, co].map(s => s.getSheetId());
+    const nuevas = [le, ve, mi, rs, pr, co].map(s => s.getSheetId());
     ss.getSheets().forEach(s => { if (nuevas.indexOf(s.getSheetId()) < 0) ss.deleteSheet(s); });
     SpreadsheetApp.flush();
-    le.setName("Léeme"); ve.setName("Ventas"); mi.setName("Misioneros"); rs.setName("Resumen"); co.setName("Config");
+    le.setName("Léeme"); ve.setName("Ventas"); mi.setName("Misioneros"); rs.setName("Resumen"); pr.setName("Premios"); co.setName("Config");
     mi.getRange(1, 3).setFormula(F_VEND); mi.getRange(1, 4).setFormula(F_DEBE); mi.getRange(1, 6).setFormula(F_FALTA);
     const CUPOS = 'ARRAYFORMULA(SUMPRODUCT((Misioneros!A2:A<>"")*(Misioneros!G2:G="")*IF(Misioneros!B2:B="",Config!B3,Misioneros!B2:B)))';
     const res = [
@@ -390,7 +410,7 @@ function preparar(forzar) {
     rs.getRange(1, 1, res.length, 2).setValues(res);
     rs.getRange("A1").setFontWeight("bold"); rs.getRange("A8").setFontWeight("bold");
     rs.getRange("B9:B12").setNumberFormat("$#,##0"); rs.getRange("B13").setNumberFormat("0%"); rs.setColumnWidth(1, 340); rs.setColumnWidth(2, 140);
-    [le, ve, mi, rs, co].forEach((s, i) => { ss.setActiveSheet(s); ss.moveActiveSheet(i + 1); });
+    [le, ve, mi, rs, pr, co].forEach((s, i) => { ss.setActiveSheet(s); ss.moveActiveSheet(i + 1); });
     ss.setActiveSheet(le);
     PropertiesService.getScriptProperties().deleteProperty("auto");
     PropertiesService.getScriptProperties().deleteProperty("ult");
