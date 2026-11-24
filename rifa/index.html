@@ -150,7 +150,7 @@ function metaH(){return `<div class="card" style="margin-top:14px;text-align:cen
 function premH(){return PREM.length?`<button class="btn" onclick="premios()">🎁 Ver los premios</button>`:""}
 let PBACK="home()";
 function premios(){const L=PREM;W(`<h1 class="s">PREMIOS</h1><div class="sub">RIFA NAVIDEÑA</div>${CFG.sorteo?`<div class="when">¡Sorteamos el ${esc(CFG.sorteo)}!</div>`:""}
- ${L.length?`<div class="prems">${L.map((p,i)=>`<div class="band ${i%2?"der":"izq"}">${p.img?`<img class="bi" src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;bi ph&quot;>${ico("gift").replace(/"/g,"&quot;")}</div>'">`:`<div class="bi ph">${ico("gift")}</div>`}<span>${esc(p.t)}${p.d?`<small>${esc(p.d)}</small>`:""}</span></div>`).join("")}</div>`:`<p>Pronto vas a ver los premios acá.</p>`}
+ ${L.length?`<div class="prems">${L.map((p,i)=>`<div class="band ${i%2?"der":"izq"}">${p.img?`<img class="bi" src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span>${esc(p.t)}${p.d?`<small>${esc(p.d)}</small>`:""}</span></div>`).join("")}</div>`:`<p>Pronto vas a ver los premios acá.</p>`}
  <p class="mut" style="text-align:center;font-size:.9rem;margin-top:12px">¡Y se van sumando más!</p>${back(PBACK)}`)}
 const sorteoTxt=()=>CFG.sorteo?`<div class="when">¡Sorteamos el ${esc(CFG.sorteo)}!</div>${CFG.como?`<div class="mut">${esc(CFG.como)}${CFG.ig?" · "+esc(CFG.ig):""}</div>`:""}`:"";
 
