@@ -19,6 +19,8 @@ const HOJA_PREMIOS = "rifas"; /* pestaña de la maestra con los premios (columna
 const PAGO_TXT = "Podés pagar en efectivo a un coordinador (en los encuentros de los domingos) o por transferencia con el QR del grupo y mandarle el comprobante a un coordinador.";
 const AMARILLO = "#fff2cc";
 const MAX_POR_VENTA = 100;
+/* Coordinadores que venden a voluntad (cupo 0: sin mínimo, entregan lo que venden). No están en Asistencia: se agregan al instalar. */
+const COORDINADORES = ["Agustín Crivaro", "Carmela Martín y Herrera", "Guadalupe Lagomarsino", "Ignacio Zavalía", "Iñaki Gallo", "Juan Cruz Rolón", "Matilde Goñi", "Pedro Gallardo", "Pedro Alsina"];
 
 function SS() { return SpreadsheetApp.getActiveSpreadsheet(); }
 function out(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
@@ -288,7 +290,12 @@ function sincronizar(forzar) {
 }
 
 /* ---------- instalación (corre una sola vez) ---------- */
-function instalar() { preparar(true); sincronizar(true); }
+function instalar() { preparar(true); sincronizar(true); agregarCoordinadores(); }
+function agregarCoordinadores() {
+  const sh = SS().getSheetByName("Misioneros"), n = sh.getLastRow();
+  const ya = n >= 2 ? sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()) : [];
+  COORDINADORES.filter(k => ya.indexOf(k) < 0).forEach((k, i) => { sh.getRange(sh.getLastRow() + 1, 1, 1, 2).setValues([[k, 0]]); });
+}
 const F_VEND = '={"Vendidos";ARRAYFORMULA(IF(A2:A="","",SUMIFS(Ventas!C2:C,Ventas!F2:F,A2:A,Ventas!H2:H,"V-*")))}';
 const F_DEBE = '={"Tiene que entregar ($)";ARRAYFORMULA(IF(A2:A="","",IF(C2:C>IF(B2:B="",Config!B3,B2:B),C2:C,IF(B2:B="",Config!B3,B2:B))*Config!B2))}';
 const F_FALTA = '={"Falta pagar ($)";ARRAYFORMULA(IF(A2:A="","",D2:D-IF(E2:E="",0,E2:E)))}';
@@ -345,7 +352,7 @@ function preparar(forzar) {
       ["Misioneros → un renglón por misionero. Los nombres se agregan solos desde la planilla maestra (Asistencia)."],
       ["      Columnas amarillas = las completan los coordinadores:"],
       ["      · Pagó ($): lo que entregó el misionero HASTA AHORA (el total, no lo de hoy). Ejemplo: pagó 100.000 y después 100.000 → escribir 200000."],
-      ["      · Cupo: vacío = el de Config. Cambiarlo solo si alguien vende un cupo distinto."],
+      ["      · Cupo: vacío = el de Config. Cambiarlo solo si alguien vende un cupo distinto. Cupo 0 = vende a voluntad (los coordinadores): entrega lo que vende."],
       ["      'Tiene que entregar' = el cupo × precio, o lo que vendió si vendió más. Lo demás se calcula solo."],
       ["      ¿Alguien que no está en Asistencia? Escribir su nombre en una fila vacía al final."],
       ["Resumen → totales de números y plata."],
