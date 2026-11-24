@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rifa Navideña · Misioneros · Grupo Misionero Espíritu Santo</title>
+<meta name="description" content="Carga de ventas de la Rifa Navideña del Grupo Misionero de la Parroquia Espíritu Santo (solo para misioneros).">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#d2c6a6;--card:#f8f2de;--ink:#342312;--brown:#553a1e;--sec:#e6d29a;--acc:#b5573f;--coral:#b5573f;--btni:#fbf6e6;--mut:#7a6350;--inp:#fffcf2;--line:#b9a07a;--tint:#6b47311a;--sh:#d9b45f;--d1:#7a5640;--d2:#c18a2c;--d3:#5f93c4;--d4:#b5573f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#241c14;--card:#372b20;--ink:#f4e8c9;--brown:#e0c590;--sec:#4a3a2a;--acc:#ff9a7f;--coral:#ff9a7f;--btni:#2a2018;--mut:#cdb995;--inp:#241c14;--line:#7d6746;--tint:#e0c5901f;--sh:#6b5434;--d1:#cdb27a;--d2:#e0a94a;--d3:#7fb0de;--d4:#e08a70}}
+:root[data-theme=dark]{--bg:#241c14;--card:#372b20;--ink:#f4e8c9;--brown:#e0c590;--sec:#4a3a2a;--acc:#ff9a7f;--coral:#ff9a7f;--btni:#2a2018;--mut:#cdb995;--inp:#241c14;--line:#7d6746;--tint:#e0c5901f;--sh:#6b5434;--d1:#cdb27a;--d2:#e0a94a;--d3:#7fb0de;--d4:#e08a70}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;font:500 17px/1.4 "Bricolage Grotesque",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+#deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}#deco svg{position:absolute;opacity:.55}
+main{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:26px 14px 36px;text-align:center}
+.stamp{background:color-mix(in srgb,var(--card) 93%,transparent);border:3px solid var(--brown);border-radius:26px;box-shadow:6px 6px 0 var(--sh);padding:26px 20px 22px}
+button,input{font-family:inherit}
+h1{font:800 3.4rem/1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--brown);letter-spacing:-.01em;margin:.1em 0 .15em;text-transform:uppercase}
+h1.s{font-size:2rem}
+h1 svg{height:.85em;width:auto;vertical-align:-.06em;margin-left:.1em}
+h2{font:800 1.3rem "Bricolage Grotesque",system-ui,sans-serif;margin:.2em 0}
+.sub{font-weight:700;letter-spacing:.12em;color:var(--brown);font-size:.85rem}
+.where{margin-top:8px}
+.when{margin:14px 0;border-top:3px solid var(--brown);border-bottom:3px solid var(--brown);padding:6px;font:800 1.5rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--brown)}
+.ico{display:flex;justify-content:center;gap:10px;margin:12px 0}.ico svg{width:50px;height:50px;color:var(--brown)}
+.price{font:800 2.8rem/1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--acc);margin-top:12px}
+.mut{color:var(--mut)}
+.btn{display:block;width:100%;margin:11px 0;padding:12px;border-radius:99px;border:2px solid var(--brown);background:var(--sec);color:var(--ink);font:700 1.05rem "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.btn.pri{background:var(--brown);color:var(--btni)}
+.btn.o{background:transparent}
+.card{background:var(--tint);border:2px solid var(--line);border-radius:18px;padding:14px;text-align:left}
+input:not([type=radio]){width:100%;padding:11px 18px;border:2px solid var(--line);border-radius:99px;font:inherit;background:var(--inp);color:var(--ink)}
+label{display:block;font-weight:700;margin:12px 0 4px;text-align:left}
+.opt{display:flex;align-items:center;gap:10px;margin:10px 0;padding:11px 18px;border-radius:99px;border:2px solid var(--line);cursor:pointer;font-weight:700}
+.bar{display:flex;gap:6px;margin:10px 0 16px}.bar i{flex:1;height:6px;border-radius:9px;background:var(--tint)}.bar i.on{background:var(--brown)}
+.back{background:none;border:0;color:var(--brown);font:700 1rem "Bricolage Grotesque",system-ui,sans-serif;text-decoration:underline;cursor:pointer;display:block;margin:10px auto 0}
+.item{display:block;width:100%;text-align:left;padding:9px 12px;border:0;border-bottom:1px dashed var(--line);background:none;font:inherit;color:inherit;cursor:pointer}
+.item small{display:block;color:var(--mut);font-size:.85rem}.item:disabled{opacity:.45;cursor:default}
+.prog{height:10px;border-radius:9px;background:var(--tint);overflow:hidden}.prog b{display:block;height:100%;background:var(--brown)}
+.row{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dotted var(--line)}.row b{color:var(--acc);white-space:nowrap}
+.band{border:2px solid var(--brown);background:var(--tint);border-radius:16px;padding:10px 16px;margin:12px 6px;font:800 1.4rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--ink)}
+.qr svg{display:block;width:100%;height:auto}
+foot{display:block;margin-top:20px;color:var(--mut);font-size:.85rem}foot a{color:inherit}
+.band{display:flex;align-items:center;gap:14px;text-align:left}.band span{flex:1}.bi{width:92px;height:92px;border-radius:14px;object-fit:cover;flex:none;border:2px solid var(--brown)}.bi.ph{display:grid;place-items:center;background:var(--tint);border-style:dashed;color:var(--brown)}.bi.ph svg{width:48px;height:48px;opacity:.7}
+#flot{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.pol{position:absolute;margin:0;width:clamp(96px,13vw,170px);background:#fffdf5;padding:6px 6px 20px;box-shadow:0 6px 18px #0003;opacity:.5;transform:rotate(var(--r));animation:drift 20s ease-in-out infinite alternate}
+.pol img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+@keyframes drift{from{transform:translate(0,0) rotate(var(--r))}to{transform:translate(14px,-26px) rotate(calc(var(--r) * -1))}}
+@media (max-width:700px){.pol{opacity:.38;width:92px}}
+@media (prefers-reduced-motion:reduce){.pol{animation:none}}
+.gal{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0}.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:2px solid var(--brown)}
+.qty{display:flex;align-items:center;justify-content:center;gap:24px;margin:8px}.qty .btn{width:60px;margin:0;padding:6px;font-size:1.4rem}.qty b{font-size:3rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}.chip{flex:1 1 auto;padding:9px 12px;border-radius:99px;border:2px solid var(--line);background:var(--inp);color:var(--ink);font:700 .95rem inherit;font-family:inherit;cursor:pointer}.chip.on{background:var(--brown);border-color:var(--brown);color:var(--btni)}
+.total{font-size:1.2rem;text-align:center;margin:14px 0 0}
+.opt span{display:flex;flex-direction:column}.opt small{font-weight:500;color:var(--mut);font-size:.85rem}
+.err{color:var(--acc);font-weight:700}
+.code{letter-spacing:.08em;font-family:ui-monospace,monospace}
+.pqr{width:200px;margin:10px auto;background:#fff;padding:8px;border-radius:12px}.pqr img{width:100%;display:block;image-rendering:pixelated}
+.tk{text-align:center;margin:12px 0}.tk .qr{width:180px;margin:0 auto 6px;background:#fff;padding:8px;border-radius:12px}.tk small{display:block}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}.tabs button{flex:1 1 auto;padding:8px 10px;border-radius:99px;border:2px solid var(--brown);background:transparent;color:var(--ink);font:700 .9rem inherit;font-family:inherit;cursor:pointer}.tabs button.on{background:var(--brown);color:var(--btni)}
+.ac{margin:10px 0;display:grid;gap:6px;font-size:.95rem}.ach{display:flex;justify-content:space-between;align-items:center}.acts{display:flex;flex-wrap:wrap;gap:6px}.acts .btn{flex:1 1 140px;margin:0;padding:9px;font-size:.92rem}.ac a.btn{text-align:center;text-decoration:none;margin:0;padding:8px}
+.tag{font-size:.8rem;font-weight:800;padding:3px 10px;border-radius:99px;background:var(--tint)}.t-Pagada{background:#c6efce;color:#1e5a2b}.t-Pendiente{background:#ffeb9c;color:#6b4e00}.t-Anulada{background:#f4c2c2;color:#7a1f1f}
+.card.ok{margin:10px 0;background:#c6efce55}
+.warn{border-color:var(--acc)!important;color:var(--acc)!important}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:12px;z-index:9;max-width:90vw}
+#v{width:100%;border-radius:14px;background:#000;margin:8px 0;max-height:52vh;object-fit:cover}
+.pres{padding:16px;border-radius:14px;background:var(--tint);text-align:center;font-weight:700;display:flex;flex-direction:column;gap:4px}.pres b{font-size:1.5rem}.pres span{font-size:1.3rem}.pres.good{background:#2e8b47;color:#fff}.pres.warn{background:#e0a030;color:#231400}.pres.bad{background:#b3261e;color:#fff}
+
+.plist{width:100%;border-collapse:collapse;font-size:.92rem;text-align:left;margin-top:12px}.plist th,.plist td{border-bottom:1px solid var(--line);padding:5px 6px}.plist th{font-weight:800}
+.chip.warn{background:transparent}
+@media print{#deco,#flot,foot,.noprint{display:none!important}body{background:#fff;color:#000}main{max-width:none;padding:0}.stamp{border:0;box-shadow:none;background:#fff;padding:0}.plist{font-size:11pt}.plist td,.plist th{border-color:#999;color:#000}}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) h1 svg{fill:#e8676b}}
+:root[data-theme=dark] h1 svg{fill:#e8676b}
+</style>
+<style>
+.nums{font-family:ui-monospace,monospace;font-weight:800;color:var(--acc);letter-spacing:.04em}
+.vrow{padding:8px 0;border-bottom:1px dotted var(--line)}.vrow .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.vrow small{display:block;color:var(--mut);font-size:.85rem}
+.vrow .acts{margin-top:6px}.vrow .acts .chip,.vrow .acts a.chip{flex:0 1 auto;text-decoration:none;text-align:center}
+a.btn{text-align:center;text-decoration:none}
+.prem{margin:4px 0;padding:0 0 0 4px;list-style:none}.prem li{padding:3px 0;border-bottom:1px dotted var(--line)}.prem li:last-child{border:0}
+.big{font:800 3.6rem/1 ui-monospace,monospace;letter-spacing:.06em}
+.drawn{text-align:left;margin-top:12px}
+.opt input[type=checkbox]{width:22px;height:22px;flex:none;margin:0}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="guitar" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M34 52c-9-2-18 5-16 14 1 6-3 8-1 14 3 9 14 12 24 8 8-3 10-9 16-10 5-1 7-5 4-10-3-4-6-4-8-8-2-6-9-10-19-8z"/><circle cx="36" cy="68" r="5"/><path d="M52 52 82 22M78 14l8 8M84 8l8 8"/></g></symbol><symbol id="mate" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M28 42h44c4 0 6 26-4 38-7 8-29 8-36 0-10-12-8-38-4-38z"/><path d="M28 42q22-10 44 0M36 60q14 8 28 0M58 38 80 10M75 8h10"/></g></symbol><symbol id="flag" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="16" width="58" height="14" fill="#6aa0d4" stroke="none" opacity=".6"/><rect x="22" y="42" width="58" height="14" fill="#6aa0d4" stroke="none" opacity=".6"/><path d="M22 10v82M22 16h58v40H22zM22 30h58M22 42h58"/><circle cx="51" cy="36" r="4"/></g></symbol><symbol id="poncho" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M50 14 12 78q38 12 76 0zM40 20q10 12 20 0M24 60q26 10 52 0M32 46q18 8 36 0M14 80v8M26 83v8M38 85v8M50 86v8M62 85v8M74 83v8M86 80v8"/></g></symbol><symbol id="hat" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 66q42 22 84 0-6-8-16-10-2-26-26-26T34 56q-10 2-26 10zM34 52q16 8 32 0"/></g></symbol><symbol id="bombo" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="50" cy="34" rx="30" ry="12"/><path d="M20 34v32c0 7 13 12 30 12s30-5 30-12V34M22 48l14 18 14-18 14 18 14-18M64 8 84 22M82 8 66 24"/></g></symbol><symbol id="note" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M42 72V24l32-8v48M42 40l32-8"/><circle cx="34" cy="74" r="8"/><circle cx="66" cy="66" r="8"/></g></symbol><symbol id="empanada" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 66a40 40 0 0 1 80 0zM14 72h72M18 62l2-6M30 62l1-10M44 62V50M58 62l-1-12M72 62l-2-10"/></g></symbol><symbol id="sun" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="50" r="14"/><path d="M50 14v14M50 72v14M14 50h14M72 50h14M24 24l10 10M66 66l10 10M76 24 66 34M34 66 24 76"/></g></symbol><symbol id="tree" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M50 8 30 36h10L24 58h12L18 80h64L64 58h12L60 36h10z"/><path d="M44 80v12h12V80"/><circle cx="42" cy="50" r="2.5"/><circle cx="58" cy="66" r="2.5"/><circle cx="54" cy="32" r="2.5"/></g></symbol><symbol id="gift" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="40" width="68" height="48" rx="4"/><rect x="10" y="28" width="80" height="14" rx="3"/><path d="M50 28v60M50 28c-6-14-24-18-24-6 0 6 12 6 24 6M50 28c6-14 24-18 24-6 0 6-12 6-24 6"/></g></symbol><symbol id="star" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M50 10l11 25 27 3-20 18 6 27-24-14-24 14 6-27-20-18 27-3z"/></g></symbol><symbol id="ticket" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 30h80v12a8 8 0 0 0 0 16v12H10V58a8 8 0 0 0 0-16z"/><path d="M64 30v40" stroke-dasharray="5 6"/><path d="M26 46h26M26 56h18"/></g></symbol><symbol id="bell" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M50 14c-16 0-24 12-24 28v16l-8 12h64l-8-12V42c0-16-8-28-24-28z"/><path d="M42 78a8 8 0 0 0 16 0M50 6v8M62 6c8 2 14 8 16 16"/></g></symbol></defs></svg>
+<div id="deco"></div><div id="flot" aria-hidden="true"></div>
+<main id="app"></main>
+<script>
+/* ===== Rifa Navideña · Grupo Misionero Espíritu Santo — ventas de números =====
+   Cada misionero entra con su nombre y anota las ventas (comprador, celular y cantidad).
+   La página le asigna los números a cada comprador y arma el mensaje de WhatsApp.
+   Los datos viven en el Google Sheet "Rifa_Navideña" (pestañas Ventas, Misioneros, Resumen, Config).
+   El código del servidor está en rifa/apps-script/Codigo.gs. */
+const API="__API__";
+const CFG={price:5000,per:40,meta:0,sorteo:"",como:"",ig:"",e1:"",e1p:50,e2:"",abierta:true,wa:"5491170544319",mail:"ignaciozavalia1@gmail.com",pagoTxt:"",clave:false};
+let KIDS=[],AV={},PREM=[],TOT={vend:0,pag:0},LOADED=false;
+/* Fotos del grupo: archivos dentro de la carpeta fotos/ del repositorio */
+const FLOT=["../fotos/mision-04.jpg","../fotos/mision-23.jpg","../fotos/mision-25.jpg","../fotos/mision-18.jpg","../fotos/mision-20.jpg","../fotos/mision-03.jpg","../fotos/mision-16.jpg","../fotos/mision-26.jpg","../fotos/mision-15.jpg"];
+const cross=`<svg viewBox="0 0 862 1014" fill="#9d171b" aria-hidden="true"><path d="M331 1012C328 1010 324 1009 316 1010C310 1010 309 1010 310 995C310 985 310 981 308 977C307 974 307 970 307 967C308 964 308 955 309 946C310 937 310 927 311 922C311 917 311 910 311 905C311 900 311 894 313 887C314 882 315 872 315 866C316 859 317 850 318 846C318 842 320 828 320 816C321 804 322 790 323 786C324 781 324 768 325 757C326 745 327 730 328 723C329 716 330 705 331 698C331 692 332 684 333 680C334 676 334 664 335 650C336 634 336 627 337 624C338 621 338 619 338 614C337 610 337 607 338 601C339 598 340 588 341 580C341 573 342 562 343 556C346 541 346 510 344 509C343 508 340 508 336 508C333 508 328 508 326 507C313 505 300 503 294 501C291 501 285 499 280 498C276 497 271 495 269 495C263 491 257 489 253 489C249 489 237 486 234 485C232 484 228 483 226 482C224 482 220 481 218 480C216 479 212 478 210 478C207 477 204 476 202 475C201 474 198 473 196 473C194 472 191 471 189 470C188 469 186 468 185 468C184 468 181 467 179 466C176 464 173 463 170 462C168 461 166 460 165 459C164 459 162 458 160 457C159 457 156 456 155 455C154 454 151 452 149 452C147 451 143 449 140 447C138 445 134 444 133 443C132 442 129 441 128 439C126 438 124 437 124 437C123 437 122 436 120 435C115 431 109 427 107 427C106 427 97 422 94 419C92 418 89 415 86 412C83 410 80 408 80 407C80 407 74 402 68 396C61 390 55 385 54 383C53 382 49 378 46 375C43 371 40 368 40 368C40 366 35 358 30 353C24 346 20 340 20 338C20 337 19 335 18 333C16 331 15 329 15 328C15 326 14 323 13 321C11 319 10 315 10 313C9 311 8 307 7 305C6 302 5 298 4 295C4 293 3 289 2 286C-6 269 15 257 32 269C34 270 36 271 37 271C38 271 39 272 40 272C41 273 43 275 46 275C48 276 51 278 52 278C53 279 55 280 57 281C59 282 61 283 62 284C63 284 65 285 67 286C68 286 70 287 71 288C72 288 74 289 76 290C79 291 82 292 83 293C84 294 87 295 89 296C91 296 94 297 95 298C97 299 99 300 102 301C104 302 106 302 107 303C107 304 109 305 112 305C115 306 120 309 124 310C137 317 139 318 146 319C150 319 156 319 158 320C161 320 166 321 169 321C172 321 176 322 179 323C182 324 187 325 191 326C194 326 198 328 200 328C202 329 206 330 209 331C212 331 217 332 220 333C224 334 231 335 235 336C240 337 245 337 246 338C248 339 263 341 270 341C273 341 279 342 284 343C288 344 296 345 300 346C305 346 313 347 318 348C328 350 344 352 345 351C347 350 345 303 343 290C341 281 341 272 341 233C340 181 339 152 337 142C337 138 336 127 335 118C333 84 332 66 331 54C330 42 331 33 333 29C334 28 335 25 336 24C337 19 352 4 357 4C357 4 359 3 362 2C366 -0 371 -1 375 1C380 4 383 4 386 2C390 1 397 1 404 3C407 3 418 4 428 4C440 5 454 6 461 6C472 7 474 7 479 6C494 1 515 11 523 27C526 34 526 34 526 56C526 86 524 136 522 150C520 168 520 178 521 185C524 193 522 251 519 261C518 266 518 276 517 301C517 322 516 336 515 339C513 347 514 347 530 346C538 346 548 344 554 343C559 342 570 341 577 340C585 340 592 339 594 338C596 337 602 336 607 336C612 336 619 334 622 333C630 331 639 330 647 330C651 330 654 329 657 328C663 325 670 323 680 321C685 321 692 319 695 318C698 317 701 316 702 316C704 316 707 315 709 314C711 312 715 311 718 311C720 310 724 309 726 308C728 307 730 306 731 306C732 306 736 305 739 304C742 303 747 301 749 301C751 300 756 299 758 298C760 297 764 296 767 295C769 294 771 294 771 293C771 291 779 287 783 287C786 286 790 285 794 283C797 281 800 280 801 280C802 280 804 279 806 278C807 277 810 276 812 276C813 275 815 274 816 273C817 273 819 272 821 271C824 270 826 269 828 268C829 267 831 266 833 266C834 265 836 264 837 263C838 262 850 261 851 263C852 263 851 265 849 266C846 268 847 270 851 270C854 270 858 274 858 277C858 278 859 282 860 286C862 292 862 292 860 296C859 298 858 301 858 303C857 305 856 307 856 308C855 309 854 310 853 312C853 315 843 336 841 338C840 339 838 341 838 343C836 347 828 358 825 361C825 362 823 365 823 366C822 368 821 371 819 372C818 374 817 376 817 376C817 377 816 377 815 378C812 378 812 378 802 390C799 395 795 398 795 398C794 398 794 399 793 400C793 402 773 419 765 425C763 426 759 429 758 430C751 435 739 442 737 443C735 443 734 444 733 445C732 445 730 446 728 447C726 448 724 449 722 450C721 451 719 452 718 453C717 453 714 454 713 455C712 456 710 457 709 457C708 457 706 458 703 459C693 465 688 467 685 467C682 468 680 469 679 470C677 470 674 472 672 472C665 475 655 479 653 481C652 481 649 482 646 483C640 484 627 488 621 490C615 492 612 492 607 491C601 488 596 489 599 492C602 496 596 497 588 495C579 491 566 493 574 497C582 501 571 504 560 501C555 499 544 498 542 500C541 501 541 501 543 501C548 501 551 503 549 505C546 508 543 507 538 505C527 499 506 505 508 513C508 516 511 517 512 514C515 507 517 531 515 542C514 546 514 549 515 552C516 555 516 560 513 586C513 597 515 602 517 594C519 583 521 598 519 612C518 617 518 621 518 623C519 625 519 628 519 629C519 631 520 633 521 634C523 637 523 637 521 640C517 644 517 649 520 654C522 657 522 659 522 662C521 669 523 694 525 699C525 701 527 708 527 713C528 718 529 723 529 725C532 729 531 735 529 738C527 739 527 740 527 754C528 773 529 775 532 778C534 780 534 780 533 783C531 788 533 835 535 846C536 847 536 859 537 872C538 890 538 896 539 899C540 901 541 905 541 908C541 915 543 964 543 966C544 970 547 995 547 999C547 1002 548 1004 549 1005C552 1007 551 1009 548 1010C544 1011 421 1011 417 1010C415 1009 412 1010 409 1011C406 1011 402 1012 397 1011C377 1010 343 1011 340 1012C336 1014 335 1014 331 1012Z"/></svg>`;
+const PAYQR="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANgAAADYAQAAAAChWxBAAAAD/UlEQVR42s1YzY7bNhD+aDqggR5Gt55iOn2O1HSAPFQKqDEDueje+kiRkgB9jFLbFxjfaIDW14PteDeb5NLlIr74MJA0w+9nZmiIb/5m+HFiyAAcJ7guCUugtmvPrgcQquayAIACoEzA/BwLJHaAYonFDfb+pz/SPhsyVzqXo2nw2wuaYsY93/v94e0IYDSxIg6fbqE3twBu9869X+HmTqwHFgUA0vV8anKifW5cgSzeveJ4mKF5Eg6mK/4XDgbSdaOyQBwHZQmJHMhciYODMQBwiEtgBxwiQ7OjMYuHz+XHqn2TEPtVgw2wAPQSJEkWo7Ck40DGNdiRJGvpXaJNcNEoAAhJiWsvf56+F5/Qe1gguYVkS2UJqi3Ajkm3rIP739N+Yfu9i2Nj3Dv/89ykQxmD/6z3Fe76Uz5xtUouh82/yrlRUwz5+1toC8g8DHuzqebzaA1dWYLZJPk4EC38A57N0aCvjDuTsHiym8CyBlpA7ZDyd3DP/yuXk+dgc6/OUy49gG0SFkjGGiSTbicvtfT3EpKxFNhBYSeRaBK7yeu9frt6ZP3ded8GDTCdazfqOiqZxHFQ4YkTlfQHDoO+sRPgJrAYVayvep+tTt5TnsR75odfl/s9ZuDuVrCDNOUZ94cwqlbqf+bDPocepng98P0Kn54bccMwms0MMwCbzxgp+tWj1B6/qaUlAE8XDQFASiAAVPPdC/82X8klTMJo6Diq40AWeHZMWm3+vMWNnZCP3mPHFXYhAR/g2X95ZvpYHDy/s8Hry/wzu+Ag7JKcen8vjCaprVY7sk3nvnvCnez9eQZ58r2DPSRvSXajooXATl5hqK6S7xoy2uTZpdPM1Y1JckiSwwwzIN7DO113kip7xwq59aMpRrFj0xzDSsGgf/V1ag9UIOiWk6BdgzFQSOLNhWfpa15RqfdTtxyV3UjYXnILKOAvuMcKs3e8eM/8QS+G4yQsS3HsRUhKx1St94eRjF5hR4XtBVh7lrXXyrs2AMV8BWDSi69lOypg6Lok2E4Q9hBOqNb7i9c3gUpSHZOoK1AYXr4XN3e0V2aPWzvQLO7G7D9+cVwBR7/Kx21yh1f0nEa/qOh1NgGWCbb3aIOq6/0X+21zzlUr7P3NlYNJAKOMhoBR6UiJwNULHpmDm5P+4kNNX3xYXTfScVAFoJapWg8A4CJOeu96kRiS2qGW3mf3Zp7XQEZqFvjleufBUWFHdewFMKw49yC/hLguwXWTnPb+HhIBbJ+m9z/w8uMaAPZA4CGuPezk9abOrH/+Fz1uwOMz8J2dmuPM+/zwXqr6Xaylwo6jcR91ATZoacYSTntALc53E1xHzXZQWFK6yav9Du7zKrWbH+hO/D8cX3ms6S0PeQAAAABJRU5ErkJggg==";
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\s+/g," ").trim();
+const money=n=>(n<0?"-":"")+"$"+Math.round(Math.abs(n)).toLocaleString("es-AR");
+const fmtTel=d=>/^549\d{10}$/.test(d)?`+54 9 ${d.slice(3,5)} ${d.slice(5,9)}-${d.slice(9)}`:"+"+d;
+const n4=n=>String(n).padStart(4,"0");
+const rango=(d,a)=>d===a?n4(d):n4(d)+" al "+n4(a);
+function numsTxt(v){if(v.q<=6){const L=[];for(let i=v.del;i<=v.al;i++)L.push(n4(i));return L.length>1?L.slice(0,-1).join(", ")+" y "+L[L.length-1]:L[0]}return "del "+n4(v.del)+" al "+n4(v.al)+" ("+v.q+" números)"}
+/* Teléfono argentino → 549 + 10 dígitos (igual que en el servidor) */
+function telAR(s){let d=String(s||"").replace(/\D/g,"");if(d.indexOf("00")===0)d=d.slice(2);if(d.indexOf("54")===0&&d.length>=12){d=d.slice(2);if(d[0]==="9")d=d.slice(1)}if(d[0]==="0")d=d.slice(1);if(d.length===10&&d.indexOf("15")===0)d="11"+d.slice(2);if(d.length===12){for(const a of [2,3,4])if(d.substr(a,2)==="15"){d=d.slice(0,a)+d.slice(a+2);break}}if(d.length===8)d="11"+d;return d.length===10?"549"+d:""}
+const wa=()=>CFG.wa?`<p class="mut" style="text-align:center;font-size:.92rem">¿Dudas o algún problema? Escribinos por WhatsApp al <b>${fmtTel(CFG.wa)}</b>.</p>`:"";
+const foot=`<foot>Grupo Misionero · Parroquia Espíritu Santo · <a href="#" onclick="priv();return false">Privacidad</a></foot>`;
+const W=(h,f)=>{stopAuto();app.innerHTML=`<div class="stamp">${h}</div>${foot}`;scrollTo(0,0);flot(!!f)};
+const back=f=>`<button class="back" onclick="${f}">‹ Volver</button>`;
+const ico=n=>`<svg viewBox="0 0 100 100"><use href="#${n}"/></svg>`;
+const first=s=>String(s).split(" ")[0];
+const words=q=>norm(q).split(" ").filter(Boolean);
+const matches=(txt,ws)=>{const t=norm(txt);return ws.every(w=>t.includes(w))};
+async function get(q){const r=await fetch(API+(q||""));return r.json()}
+async function post(o){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(o)});return r.json()}
+function toast(m){const d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3600)}
+const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}},set:(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}};
+let ME=store.get("rifa_yo"),MK=store.get("rifa_clave");
+
+/* mensaje de WhatsApp para el comprador */
+function mensaje(v,quien){const s=CFG.sorteo?`\n\n🎁 Sorteo: ${CFG.sorteo}${CFG.como?" · "+CFG.como:""}${CFG.ig?" ("+CFG.ig+")":""}`:"";
+ return `¡Hola ${first(v.n)}! 🎄 Gracias por colaborar con la misión del Grupo Misionero de la Parroquia Espíritu Santo.\n\n${v.q===1?"Tu número":"Tus números"} de la Rifa Navideña: *${numsTxt(v)}*${s}\n\n¡Mucha suerte!${quien?"\n"+quien:""}`}
+const waLink=(v,quien)=>`https://wa.me/${String(v.tel).replace(/\D/g,"")}?text=${encodeURIComponent(mensaje(v,quien))}`;
+async function copiarTxt(t){try{await navigator.clipboard.writeText(t);toast("Mensaje copiado.")}catch(e){prompt("Copiá el mensaje:",t)}}
+
+/* ---------- carga de datos ---------- */
+async function loadData(){const d=await get();if(!d||!d.ok||!d.config)throw new Error((d&&d.error)||"datos");
+ Object.assign(CFG,d.config);PREM=d.premios||[];TOT=d.tot||TOT;KIDS=[];AV={};(d.chicos||[]).forEach(x=>{KIDS.push(x.n);AV[x.n]={c:Number(x.c),k:Number(x.k)||0}});LOADED=true}
+
+/* ---------- fotos flotando (solo en la portada) ---------- */
+function flot(on){const L=$("#flot");if(!on||!FLOT.length){L.innerHTML="";L.dataset.on="";return}if(L.dataset.on)return;L.dataset.on="1";
+ const n=Math.min(FLOT.length,innerWidth<700?5:9),pos=[[2,6],[78,4],[6,40],[84,34],[3,74],[80,68],[88,90],[60,14],[22,20]];
+ L.innerHTML=FLOT.slice(0,n).map((f,i)=>{const [x,y]=pos[i%pos.length],r=(i%2?1:-1)*(4+i%3*3),d=18+i%4*5;return `<figure class="pol" style="left:${x}%;top:${y}%;--r:${r}deg;animation-duration:${d}s;animation-delay:-${i*3}s"><img src="${esc(f)}" alt="" loading="lazy"></figure>`}).join("")}
+
+/* ---------- piezas comunes ---------- */
+function metaH(){if(!CFG.meta)return "";const v=TOT.vend*CFG.price;return `<div class="card" style="margin-top:14px"><b>Entre todos</b><div style="text-align:center;margin:6px 0"><b style="font-size:1.6rem">${TOT.vend.toLocaleString("es-AR")}</b> números vendidos</div><div class="prog"><b style="width:${Math.min(100,v/CFG.meta*100)}%"></b></div><p class="mut" style="font-size:.88rem;margin:6px 0 0;text-align:center">${money(v)} de ${money(CFG.meta)} para la misión a San Pedro</p></div>`}
+function premH(){if(!PREM.length)return "";return `<div class="card" style="margin-top:14px"><b>🎁 Premios</b><ul class="prem">${PREM.map(p=>`<li>${esc(p)}</li>`).join("")}</ul><p class="mut" style="font-size:.85rem;margin:4px 0 0">¡Y se van sumando más!</p></div>`}
+const sorteoTxt=()=>CFG.sorteo?`<div class="when">Sorteo: ${esc(CFG.sorteo)}</div>${CFG.como?`<div class="mut">${esc(CFG.como)}${CFG.ig?" · "+esc(CFG.ig):""}</div>`:""}`:"";
+
+/* ---------- portada ---------- */
+function home(){if(!LOADED)return W(`<h1>RIFA${cross}</h1><p>No pudimos cargar los datos. Revisá tu internet.</p><button class="btn pri" onclick="start()">Reintentar</button>${wa()}`);
+ if(ME&&!KIDS.includes(ME)){ME="";store.set("rifa_yo","")}
+ W(`<h1>RIFA${cross}</h1><div class="sub">NAVIDEÑA · GRUPO MISIONERO · PARROQUIA ESPÍRITU SANTO</div>${sorteoTxt()}<div class="ico">${["tree","gift","star","ticket","bell"].map(ico).join("")}</div>
+ <p><b>Página para misioneros.</b> Anotá acá cada rifa que vendés: la página le asigna los números al comprador y te arma el mensaje para mandárselos por WhatsApp.</p><div class="price">${money(CFG.price)}</div><div class="mut">cada número · ${CFG.per} por misionero</div>
+ ${ME?`<button class="btn pri" onclick="yo()">Mis rifas · ${esc(ME)}</button><button class="btn" onclick="como()">¿Cómo funciona?</button><button class="back" onclick="cambiar()">No soy ${esc(first(ME))}</button>`:`<button class="btn pri" onclick="elegir()">Soy misionero: anotar mis rifas</button><button class="btn" onclick="como()">¿Cómo funciona?</button>`}
+ ${metaH()}${premH()}${wa()}`,true)}
+
+function como(){const e=CFG.e1?`<p><b>4. Entregás la plata a los coordinadores:</b> ${CFG.e1p===50?"la mitad":CFG.e1p+"%"} para el <b>${esc(CFG.e1)}</b> y todo para el <b>${esc(CFG.e2)}</b>. En efectivo o con el QR del grupo (está en “Mis rifas”).</p>`:`<p><b>4. Entregás la plata a los coordinadores:</b> en efectivo o con el QR del grupo (está en “Mis rifas”).</p>`;
+ W(`<h1 class="s">¿CÓMO FUNCIONA?</h1><div class="card"><p><b>1. Vendés tus ${CFG.per} números</b> a ${money(CFG.price)} cada uno y cobrás vos la plata.</p><p><b>2. Anotás cada venta acá:</b> nombre y apellido, celular y cuántos números compró. La página le asigna los números.</p><p><b>3. Le mandás sus números por WhatsApp</b> con el botón que aparece (el mensaje ya viene armado).</p>${e}<p><b>5. El sorteo</b> es el ${esc(CFG.sorteo||"día que avisemos")}${CFG.como?" · "+esc(CFG.como.toLowerCase()):""}.</p></div>
+ <div class="card" style="margin-top:12px"><p style="margin:0">Tus ${CFG.per} números se pagan aunque no los vendas: los que no vendas quedan <b>a tu nombre</b> y participan igual del sorteo. Si vendés más, anotalos también (se suman a lo que entregás).</p></div>${ME?`<button class="btn pri" onclick="yo()">Ir a mis rifas</button>`:`<button class="btn pri" onclick="elegir()">Anotar mis rifas</button>`}${back("home()")}`)}
+function priv(){W(`<h1 class="s">PRIVACIDAD</h1><div class="card"><p>La rifa la organiza el <b>Grupo Misionero de la Parroquia Espíritu Santo</b>.</p><p><b>Qué datos guardamos:</b> el nombre y apellido y el celular de cada persona que compró números, cuántos compró, qué números le tocaron y el misionero que se los vendió. Los usamos solo para la rifa: mandarle sus números y avisarle si gana.</p><p><b>Quién los ve:</b> los coordinadores del Grupo Misionero y el misionero que hizo la venta.</p><p>No usamos publicidad ni cookies de seguimiento, y no compartimos los datos con terceros, salvo los servicios de Google donde se guardan.</p><p><b>Tus derechos:</b> podés pedir ver, corregir o borrar tus datos escribiendo a <b>${esc(CFG.mail)}</b> (Ley 25.326).</p></div>${back("home()")}`)}
+
+/* ---------- elegir misionero ---------- */
+function elegir(){W(`<h1 class="s">¿QUIÉN SOS?</h1><p class="mut">Buscá tu nombre como figura en la lista de la misión.</p><label>Tu nombre</label><input id="s" placeholder="Escribí tu nombre o apellido" oninput="flt()" autocomplete="off"><div id="l" style="margin-top:10px"></div>${back("home()")}`);$("#s").focus()}
+function flt(){const q=$("#s").value;if(!q.trim())return $("#l").innerHTML="";const ws=words(q),L=KIDS.filter(x=>matches(x,ws));
+ $("#l").innerHTML=L.slice(0,8).map(x=>{const a=AV[x];return `<button class="item" onclick="soy(${KIDS.indexOf(x)})">${esc(x)}<small>${a.k} de ${a.c} vendidos</small></button>`}).join("")+(L.length>8?`<p class="mut" style="font-size:.9rem">Hay más: escribí alguna letra más.</p>`:"")||`<p>No encontramos ese nombre.</p><p class="mut" style="font-size:.9rem">Probá con tu apellido. Si no aparecés, avisale a un coordinador.</p>`}
+function soy(i){ME=KIDS[i];store.set("rifa_yo",ME);if(CFG.clave&&!MK)return claveV();yo()}
+function cambiar(){ME="";store.set("rifa_yo","");elegir()}
+function claveV(err){W(`<h1 class="s">CLAVE</h1><p>Hola <b>${esc(first(ME))}</b>. Poné la clave de misioneros (la pasaron por el grupo).</p><input id="k" type="password" autocomplete="off" onkeydown="if(event.key==='Enter')clOk()"><p id="err" class="err">${esc(err||"")}</p><button class="btn pri" onclick="clOk()">Entrar</button>${back("cambiar()")}`);$("#k").focus()}
+function clOk(){MK=$("#k").value.trim();if(!MK)return $("#err").textContent="Escribí la clave.";store.set("rifa_clave",MK);yo()}
+
+/* ---------- mis rifas ---------- */
+let R=null,Q=1;
+async function yo(){if(!ME)return elegir();W(`<h1 class="s">MIS RIFAS</h1><p class="mut">Cargando…</p>`);
+ let r;try{r=await post({action:"mis",kid:ME,clave:MK})}catch(e){return W(`<h1 class="s">MIS RIFAS</h1><p>No pudimos conectar. Revisá tu internet.</p><button class="btn pri" onclick="yo()">Reintentar</button>${back("home()")}`)}
+ if(!r.ok){if(r.clave){const had=MK;MK="";store.set("rifa_clave","");return claveV(had?r.error:"")}return W(`<h1 class="s">MIS RIFAS</h1><p class="err">${esc(r.error)}</p><button class="btn pri" onclick="cambiar()">Buscar mi nombre de nuevo</button>${back("home()")}`)}
+ mio(r)}
+function vRow(x){return `<div class="vrow"><div class="top"><span><b>${esc(x.n)}</b><small>${esc(x.tel)}</small></span><span class="nums" style="text-align:right">${x.q===1?"N° ":""}${rango(x.del,x.al)}<small style="text-align:right">${x.q} ${x.q===1?"número":"números"}</small></span></div>
+ <div class="acts"><a class="chip" href="${waLink(x,ME)}" target="_blank" rel="noopener">📲 WhatsApp</a><button class="chip" onclick="copiar('${esc(x.id)}')">Copiar mensaje</button>${R.abierta?`<button class="chip" onclick="borrar('${esc(x.id)}',this)">Borrar</button>`:""}</div></div>`}
+function mio(r,nv){R=r;if(r.tot)TOT=r.tot;if(AV[r.kid])AV[r.kid].k=r.vend;CFG.abierta=r.abierta;
+ const V=r.items.filter(x=>!x.cierre).slice().reverse(),C=r.items.filter(x=>x.cierre),n=r.vend,c=r.cupo,falta=Math.max(0,r.debe-r.pagado),e1m=Math.round(r.debe*CFG.e1p/100);
+ W(`<h1 class="s">MIS RIFAS</h1><div class="sub">${esc(r.kid.toUpperCase())}</div>
+ ${nv?`<div class="card ok" style="margin-top:14px"><p style="margin-top:0">✔ Anotaste a <b>${esc(nv.n)}</b>: ${nv.q===1?"número":"números"} <span class="nums">${rango(nv.del,nv.al)}</span>.</p><p style="margin:0 0 4px"><b>Ahora mandale sus números:</b></p><a class="btn pri" href="${waLink(nv,ME)}" target="_blank" rel="noopener">📲 Mandarle sus números por WhatsApp</a><button class="btn o" style="margin-bottom:0" onclick="copiar('${esc(nv.id)}')">Copiar mensaje</button></div>`:""}
+ <div class="card" style="margin-top:14px"><div style="text-align:center"><b style="font-size:2.4rem">${n}</b> de ${c} números vendidos</div><div class="prog" style="margin:8px 0 4px"><b style="width:${c?Math.min(100,n/c*100):100}%"></b></div>${n>c&&c?`<p style="margin:6px 0 0;text-align:center">¡Vendiste ${n-c} más que tu cupo! 🙌</p>`:n===c&&c?`<p style="margin:6px 0 0;text-align:center">¡Vendiste todo tu cupo! 🎉</p>`:c?`<p class="mut" style="margin:6px 0 0;text-align:center;font-size:.9rem">Te ${c-n===1?"falta":"faltan"} ${c-n}.</p>`:""}</div>
+ ${r.abierta?`<h2 style="margin-top:18px">Anotar una venta</h2><label>Nombre y apellido <span class="mut" style="font-weight:500">(de quien compró)</span></label><input id="n" autocomplete="off" autocapitalize="words" onkeydown="if(event.key==='Enter')$('#t').focus()"><label>Celular</label><input id="t" type="tel" inputmode="tel" placeholder="Ej: 11 2345-6789" autocomplete="off"><label>¿Cuántos números compró?</label><div class="qty"><button class="btn" onclick="qd(-1)" aria-label="Uno menos">−</button><b id="qv">${Q}</b><button class="btn" onclick="qd(1)" aria-label="Uno más">+</button></div><div class="mut" id="qt" style="text-align:center">${money(Q*r.price)}</div><div id="err"></div><button class="btn pri" id="go" onclick="cargar()">Anotar venta</button>`:`<div class="card" style="margin-top:12px"><p style="margin:0"><b>La venta ya cerró.</b> Si te faltó anotar algo, hablá con un coordinador.</p></div>`}
+ <div class="card" style="margin-top:14px"><h2>Mis ventas</h2>${V.length?V.map(vRow).join(""):`<p class="mut" style="margin:6px 0 0">Todavía no anotaste ninguna venta.</p>`}
+ ${C.length?`<div class="vrow"><div class="top"><span><b>A tu nombre (no vendidos)</b><small>Los pagaste, así que participan del sorteo</small></span><span class="nums" style="text-align:right">${C.map(x=>rango(x.del,x.al)).join(", ")}</span></div></div>`:""}</div>
+ <div class="card" style="margin-top:14px"><h2>Plata</h2><div style="text-align:center;font-size:1.15rem;margin:6px 0">Entregaste <b style="color:var(--acc)">${money(r.pagado)}</b> de <b>${money(r.debe)}</b></div><div class="prog" style="margin:8px 0"><b style="width:${r.debe?Math.min(100,r.pagado/r.debe*100):0}%"></b></div>
+ ${CFG.e1?`<div class="row"><span>Para el ${esc(CFG.e1)} (${CFG.e1p===50?"la mitad":CFG.e1p+"%"})</span><b>${money(e1m)}${r.pagado>=e1m?" ✅":""}</b></div>`:""}${CFG.e2?`<div class="row"><span>Para el ${esc(CFG.e2)} (todo)</span><b>${money(r.debe)}${r.pagado>=r.debe?" ✅":""}</b></div>`:""}
+ ${falta?`<button class="btn" onclick="verQR(this,${falta})">📲 Pagar con QR (transferencia)</button><div id="qrbox"></div>`:`<p style="margin:8px 0 0;text-align:center">✅ ¡Estás al día! Gracias.</p>`}<p class="mut" style="font-size:.88rem;margin-bottom:0">${esc(r.pagoTxt||"")} Lo anotan los coordinadores cuando les llega la plata, así que puede tardar en aparecer. Tus ${c} números se pagan aunque no los vendas${n>c?"; como vendiste más, entregás lo que vendiste":""}.</p></div>
+ ${metaH()}${premH()}
+ ${wa()}<button class="back" onclick="home()">‹ Inicio</button><button class="back" onclick="cambiar()">No soy ${esc(first(r.kid))}</button>`)}
+function qd(d){Q=Math.max(1,Math.min(100,Q+d));$("#qv").textContent=Q;$("#qt").textContent=money(Q*(R?R.price:CFG.price))}
+function copiar(id){const x=R.items.find(y=>y.id===id);if(x)copiarTxt(mensaje(x,ME))}
+function verQR(b,falta){b.style.display="none";const tel=CFG.wa?` (por ejemplo a Nacho por WhatsApp al <b>${fmtTel(CFG.wa)}</b>)`:"";
+ $("#qrbox").innerHTML=`<p style="margin-top:4px"><b>1.</b> Escaneá este QR con la app de tu banco o billetera y pagá lo que juntaste (te falta ${money(falta)}). El pago figura a nombre de “Parroquia Espíritu Santo”.</p><div class="pqr"><img src="${PAYQR}" alt="QR de pago del Grupo Misionero"></div>
+ <div class="card" style="font-size:.9rem;margin:8px 0"><b>¿Estás en el celular?</b> No se puede escanear un QR que está en la misma pantalla. Guardá la imagen y en tu app buscá la opción de escanear desde la galería (ícono de imagen). Si no la tiene, abrí esta página en otro celular o en la compu y escaneá desde ahí.<button class="btn o" style="margin:8px 0 0" onclick="guardarQR(this)">⬇ Guardar imagen del QR</button><small class="mut" id="gqm" style="display:block;text-align:center"></small></div>
+ <p><b>2.</b> Mandale el <b>comprobante</b> a un coordinador${tel}, con <b>tu nombre</b>.</p><p><b>3.</b> Cuando lo vean, lo anotan y acá se actualiza “Entregaste”. Puede tardar un poco.</p>`}
+async function guardarQR(b){const m=$("#gqm");try{
+ const img=new Image();img.src=PAYQR;await img.decode();const c=document.createElement("canvas"),k=Math.max(4,Math.floor(900/img.width));c.width=img.width*k+160;c.height=img.height*k+160;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.imageSmoothingEnabled=false;x.drawImage(img,80,80,img.width*k,img.height*k);
+ const blob=await new Promise(r=>c.toBlob(r,"image/png")),file=new File([blob],"QR-pago-mision.png",{type:"image/png"});
+ if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});m.textContent="Elegí “Guardar imagen” para que quede en tu galería.";return}
+ const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="QR-pago-mision.png";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);m.textContent="Listo: quedó en tus descargas/galería.";
+}catch(e){if(e&&e.name==="AbortError")return;m.textContent="Si no se guardó, mantené apretado el QR y elegí “Guardar imagen”."}}
+async function cargar(force){const name=$("#n").value.replace(/\s+/g," ").trim(),telIn=$("#t").value.trim(),e=$("#err");
+ if(!/\S{2,}\s+\S{2,}/.test(name))return e.innerHTML=`<p class="err">Escribí nombre y apellido de quien compró.</p>`;
+ if(!telAR(telIn))return e.innerHTML=`<p class="err">Revisá el celular: escribilo con código de área, por ejemplo 11 2345-6789.</p>`;
+ const b=$("#go");b.disabled=true;b.textContent="Anotando…";e.innerHTML="";
+ try{const r=await post({action:"cargar",kid:ME,clave:MK,name,tel:telIn,q:Q,force:!!force});
+  if(r.ok){Q=1;return mio(r,r.nuevo)}
+  b.disabled=false;b.textContent="Anotar venta";
+  if(r.dup)return e.innerHTML=`<div class="card" style="margin:10px 0"><p style="margin-top:0">Ya anotaste a <b>${esc(r.dup.n)}</b> con ese celular (${r.dup.q} ${r.dup.q===1?"número":"números"}, el ${esc(r.dup.f)}). ¿Es <b>otra compra</b>?</p><div class="acts"><button class="btn pri" onclick="cargar(true)">Sí, compró más</button><button class="btn o" onclick="$('#err').innerHTML=''">No, cancelar</button></div></div>`;
+  if(r.clave){MK="";store.set("rifa_clave","");return claveV(r.error)}
+  e.innerHTML=`<p class="err">${esc(r.error||"No se pudo anotar.")}</p>`}catch(x){b.disabled=false;b.textContent="Anotar venta";e.innerHTML=`<p class="err">No pudimos conectar. Revisá tu internet y probá de nuevo (fijate en “Mis ventas” si no quedó anotada antes de repetirla).</p>`}}
+async function borrar(id,b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="¿Seguro? Tocá de nuevo";b.classList.add("warn");return}
+ b.disabled=true;b.textContent="Borrando…";try{const r=await post({action:"borrar",kid:ME,clave:MK,id});if(!r.ok){b.disabled=false;b.textContent="Borrar";return toast(r.error)}mio(r);toast("Listo. Si ya le habías mandado esos números, avisale que no van más.")}catch(e){b.disabled=false;b.textContent="Borrar";toast("No pudimos conectar.")}}
+
+/* ---------- administración (#admin) ---------- */
+let K="";try{K=localStorage.getItem("rk")||sessionStorage.getItem("rk")||""}catch(e){}
+const adm=(op,o)=>post(Object.assign({action:"admin",clave:K,op},o||{}));
+let T=null,TAB="misioneros",AUTO=null,MX=-1,MF="todos";
+function stopAuto(){if(AUTO){clearInterval(AUTO);AUTO=null}}
+function admin(){if(!K)return W(`<h1 class="s">ADMIN</h1><label>Clave</label><input id="ak" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')alog()"><label class="opt"><input type="checkbox" id="arec"> <span>Recordar en este celular</span></label><p id="err" class="err"></p><button class="btn pri" onclick="alog()">Entrar</button>${back("salirAdmin()")}`);atab(TAB)}
+async function alog(){const b=$(".btn.pri");b.disabled=true;K=$("#ak").value;const r=await adm("login").catch(()=>({ok:false,error:"Sin conexión"}));b.disabled=false;if(!r.ok){K="";return $("#err").textContent=r.error}try{($("#arec")&&$("#arec").checked?localStorage:sessionStorage).setItem("rk",K)}catch(e){}atab("misioneros")}
+function salirAdmin(){K="";T=null;try{sessionStorage.removeItem("rk");localStorage.removeItem("rk")}catch(e){}location.hash="";start()}
+async function cargarT(){const r=await adm("todo").catch(()=>({ok:false,error:"Sin conexión"}));if(r.ok){T=r;T.at=Date.now();Object.assign(CFG,r.config||{});PREM=r.premios||PREM}else if(/Clave/.test(r.error||"")){K="";try{sessionStorage.removeItem("rk");localStorage.removeItem("rk")}catch(e){}}return r}
+async function atab(t){TAB=t;const tabs=[["misioneros","Misioneros"],["ventas","Ventas"],["resumen","Resumen"],["sorteo","Sorteo"]];
+ W(`<h1 class="s">ADMIN</h1><div class="tabs">${tabs.map(([k,n])=>`<button class="${k===t?"on":""}" onclick="atab('${k}')">${n}</button>`).join("")}</div><div id="ab"><p class="mut">Cargando…</p></div><button class="back" onclick="salirAdmin()">Salir</button>`);
+ if(!T||Date.now()-T.at>15000){const r=await cargarT();if(!r.ok){if(!K)return admin();return $("#ab").innerHTML=`<p class="err">${esc(r.error)}</p><button class="btn" onclick="atab('${t}')">Reintentar</button>`}}
+ if(TAB!==t||!$("#ab"))return;if(t==="misioneros")misV();if(t==="ventas")venV();if(t==="resumen")resV();if(t==="sorteo")sorV()}
+const isC=x=>String(x.id).indexOf("C-")===0;
+
+/* misioneros: cuántos vendió cada uno y cuánta plata entregó */
+function misData(){const by={};T.ventas.forEach(x=>{(by[x.kid]=by[x.kid]||[]).push(x)});const P=CFG.price;
+ const L=T.chicos.map(c=>({n:c.n,c:Number(c.c),pag:Number(c.pag)||0,est:c.est||"",ok:1}));Object.keys(by).forEach(k=>{if(!L.some(x=>x.n===k))L.push({n:k,c:0,pag:0,est:"No está en la pestaña Misioneros",ok:0})});
+ L.forEach(x=>{x.it=by[x.n]||[];x.k=x.it.filter(y=>!isC(y)).reduce((s,y)=>s+y.q,0);x.debe=Math.max(x.c,x.k)*P;x.saldo=x.debe-x.pag;x.mitad=Math.round(x.debe*CFG.e1p/100)});return L}
+function misV(){
+ $("#ab").innerHTML=`<div class="card" id="msum"></div>
+ <div class="chips" style="margin-top:12px">${[["todos","Todos"],["deben","Deben plata"],["mitad","No llegan a "+(CFG.e1p===50?"la mitad":CFG.e1p+"%")],["faltan","Vendieron menos del cupo"]].map(([k,n])=>`<button class="chip ${MF===k?"on":""}" onclick="MF='${k}';MX=-1;misV()">${n}</button>`).join("")}</div><input id="mq" placeholder="Buscar misionero" oninput="misL()" autocomplete="off"><div id="ml"></div>`;misL()}
+function misL(){const L=misData(),A=L.filter(x=>!x.est),ws=words($("#mq")?$("#mq").value:"");$("#msum").innerHTML=`<div class="row"><span>Falta que entreguen</span><b>${money(A.reduce((s,x)=>s+Math.max(0,x.saldo),0))}</b></div><div class="row"><span>No llegan a ${CFG.e1p===50?"la mitad":CFG.e1p+"%"}</span><b>${A.filter(x=>x.pag<x.mitad).length}</b></div><div class="row"><span>Vendieron menos del cupo</span><b>${A.filter(x=>x.k<x.c).length}</b></div>`;let V=L.map((x,i)=>Object.assign(x,{i})).filter(x=>matches(x.n,ws));
+ if(MF==="deben")V=V.filter(x=>x.saldo>0);if(MF==="mitad")V=V.filter(x=>x.pag<x.mitad);if(MF==="faltan")V=V.filter(x=>x.k<x.c);
+ $("#ml").innerHTML=V.map(x=>`<button class="item" onclick="MX=${MX===x.i?-1:x.i};misL()"><b>${esc(x.n)}</b>${x.est?" ⚠":""}<small>${x.k} de ${x.c} vendidos · ${x.saldo>0?"debe "+money(x.saldo):x.saldo<0?"a favor "+money(-x.saldo):"al día ✅"}</small></button>${MX===x.i?misD(x):""}`).join("")||`<p class="mut">No hay misioneros con ese filtro.</p>`}
+function misD(x){return `<div class="card" style="margin:6px 0 12px">${x.est?`<p class="err" style="margin-top:0">⚠ ${esc(x.est)} (¿le corrigieron el nombre o se dio de baja?).</p>`:""}
+ <b>Ventas</b>${x.it.length?x.it.map(p=>`<div class="row" style="align-items:center"><span>${esc(p.n)}<small class="mut" style="display:block">${esc(p.tel)}${p.tel?" · ":""}<span class="nums">${rango(p.del,p.al)}</span></small></span><button class="chip" style="flex:none" onclick="aborrar('${p.id}',this)">Borrar</button></div>`).join(""):`<p class="mut">Ninguna todavía.</p>`}
+ <div style="margin-top:12px"><b>Plata</b></div><div class="row"><span>Tiene que entregar</span><b>${money(x.debe)}</b></div><div class="row"><span>Pagó hasta ahora</span><b>${money(x.pag)}</b></div><div class="row"><span>Falta</span><b>${money(x.saldo)}</b></div>
+ ${x.ok?`<label>¿Cuánto pagó en total hasta ahora?</label><input id="pm" type="number" inputmode="numeric" step="1000" min="0" value="${x.pag||""}" placeholder="0"><div class="chips" style="margin-top:8px"><button class="chip" onclick="$('#pm').value=${x.mitad}">${CFG.e1p===50?"La mitad":CFG.e1p+"%"} (${money(x.mitad)})</button><button class="chip" onclick="$('#pm').value=${x.debe}">Pagó todo (${money(x.debe)})</button></div><button class="btn pri" onclick="apago(${x.i},this)">Guardar</button><p class="mut" style="font-size:.85rem;margin:0">Es el total que entregó, no lo de hoy. Es lo mismo que la columna “Pagó” de la pestaña Misioneros de la planilla.</p>`:""}</div>`}
+async function apago(i,b){const x=misData()[i],v=$("#pm").value.trim(),m=Math.round(Number(v)||0);if(v===""||m<0)return toast("Escribí cuánto pagó en total.");
+ b.disabled=true;b.textContent="Guardando…";const r=await adm("pagado",{kid:x.n,total:m}).catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){b.disabled=false;b.textContent="Guardar";return toast(r.error)}
+ await cargarT();toast("✔ "+x.n+": pagó "+money(m)+" en total");misL()}
+async function aborrar(id,b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="¿Seguro?";b.classList.add("warn");return}b.disabled=true;const r=await adm("borrar",{id}).catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){b.disabled=false;return toast(r.error)}await cargarT();toast("Borrada.");TAB==="ventas"?venL():misL()}
+
+/* ventas: buscar por comprador, celular o número */
+function venV(){$("#ab").innerHTML=`<input id="vq" placeholder="Nombre, celular o número de rifa" oninput="venL()" autocomplete="off"><div id="vl"></div>`;$("#vq").focus();venL()}
+function venL(){const q=$("#vq").value.trim(),d=q.replace(/\D/g,""),ws=words(q);let L=T.ventas;
+ if(!q){L=L.filter(x=>!isC(x)).slice(-15).reverse()}else if(/^\d{1,5}$/.test(q)){const n=Number(q);L=L.filter(x=>n>=x.del&&n<=x.al||(d.length>=4&&String(x.tel).replace(/\D/g,"").includes(d)))}else{L=L.filter(x=>matches(x.n+" "+x.kid,ws)||(d.length>=4&&String(x.tel).replace(/\D/g,"").includes(d)))}
+ $("#vl").innerHTML=(q?"":`<p class="mut" style="font-size:.9rem">Últimas ventas anotadas:</p>`)+L.slice(0,40).map(x=>`<div class="card ac"><div class="ach"><b>${esc(x.n)}</b><span class="nums">${rango(x.del,x.al)}</span></div><div class="mut" style="font-size:.9rem">${esc(x.tel)}${x.tel?" · ":""}${x.q} ${x.q===1?"número":"números"} · vendió ${esc(x.kid)}${x.f?" · "+esc(x.f):""}</div><div class="acts">${x.tel?`<a class="btn o" href="${waLink(x,"")}" target="_blank" rel="noopener">📲 WhatsApp</a>`:""}<button class="btn o" onclick="aborrar('${x.id}',this)">Borrar</button></div></div>`).join("")+(L.length>40?`<p class="mut">Hay más: buscá más específico.</p>`:"")+(q&&!L.length?`<p>No encontramos nada.</p>`:"")}
+
+/* resumen */
+function resV(){const M=misData(),A=M.filter(x=>!x.est),V=T.ventas,row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+ const vend=V.filter(x=>!isC(x)).reduce((s,x)=>s+x.q,0),cie=V.filter(isC).reduce((s,x)=>s+x.q,0),cup=A.reduce((s,x)=>s+x.c,0),fal=A.reduce((s,x)=>s+Math.max(0,x.c-x.k),0);
+ const debe=A.reduce((s,x)=>s+x.debe,0),pag=M.reduce((s,x)=>s+x.pag,0);
+ $("#ab").innerHTML=`<div class="card">${row("Números vendidos",vend.toLocaleString("es-AR"))}${row("Ventas anotadas",V.filter(x=>!isC(x)).length)}${row("Números de los cupos ("+A.length+" misioneros)",cup.toLocaleString("es-AR"))}${row("Faltan vender (de los cupos)",fal.toLocaleString("es-AR"))}${cie?row("A nombre de misioneros (cierre)",cie.toLocaleString("es-AR")):""}${row("Total de números en el sorteo",(vend+cie).toLocaleString("es-AR"))}</div>
+ <div class="card" style="margin-top:12px">${row("Tienen que entregar los misioneros",money(debe))}${row("Ya entregaron",money(pag))}${row("Falta que entreguen",money(debe-pag))}${CFG.meta?row("Meta de la rifa",money(CFG.meta))+row("Si todos pagan, contra la meta",money(debe-CFG.meta)):""}</div>
+ <button class="btn o" onclick="T=null;atab('resumen')">Actualizar</button>`}
+
+/* sorteo */
+const SK="rifa_sorteo";const drawn=()=>{try{return JSON.parse(sessionStorage.getItem(SK)||"[]")}catch(e){return []}};const setDrawn=a=>{try{sessionStorage.setItem(SK,JSON.stringify(a))}catch(e){}};
+function sorV(){const V=T.ventas,tot=V.reduce((s,x)=>s+x.q,0),D=drawn();
+ $("#ab").innerHTML=`${CFG.abierta?`<div class="card" style="margin-bottom:12px"><b>La venta está abierta.</b><p style="margin:6px 0">Antes del sorteo, cerrala: los números que cada misionero no vendió quedan a su nombre (los pagó) y entran al sorteo. Después nadie puede anotar ni borrar ventas desde la página.</p><button class="btn" id="cbtn" onclick="cierre(this)">🔒 Cerrar la venta</button></div>`:`<div class="card" style="margin-bottom:12px"><b>✔ La venta está cerrada.</b><p class="mut" style="margin:6px 0 0;font-size:.9rem">Para reabrirla, poner “Sí” en “Venta abierta” (pestaña Config de la planilla).</p></div>`}
+ <div id="pres" class="pres"><span><b>${tot.toLocaleString("es-AR")}</b> números en el sorteo</span><small>Cada toque saca un número al azar entre los vendidos</small></div>
+ <button class="btn pri" onclick="sacar()" ${tot?"":"disabled"}>🎲 Sacar un número</button><label class="opt"><input type="checkbox" id="vtel"> <span>Mostrar el celular del ganador<small>Dejalo apagado si estás grabando la historia</small></span></label>
+ <div class="drawn">${D.length?`<b>Números que salieron</b>`+D.map((d,i)=>`<div class="row"><span>${i+1}° número<small class="mut" style="display:block">${esc(d.n)} · vendió ${esc(d.kid)}${d.tel?" · "+esc(d.tel):""}</small></span><b class="nums">${n4(d.num)}</b></div>`).join("")+`<button class="back" onclick="if(confirm('¿Borrar la lista de números que salieron (por ejemplo, después de una prueba)?')){setDrawn([]);sorV()}">Borrar esta lista</button>`:""}</div>
+ <button class="btn o" onclick="imprimir()">🖨 Lista para el sorteo (por número)</button>`}
+function sacar(){const V=T.ventas,D=drawn(),usados=new Set(D.map(d=>d.num)),tot=V.reduce((s,x)=>s+x.q,0);if(usados.size>=tot)return toast("Ya salieron todos los números.");
+ let num,x;for(let k=0;k<1000;k++){const a=new Uint32Array(1);crypto.getRandomValues(a);let i=a[0]%tot;for(const v of V){if(i<v.q){x=v;num=v.del+i;break}i-=v.q}if(!usados.has(num))break}
+ D.push({num,n:x.n,kid:x.kid,tel:x.tel});setDrawn(D);sorV();const p=$("#pres");p.className="pres good";p.innerHTML=`<small>${D.length}° número</small><b class="big">${n4(num)}</b><span>${esc(x.n)}</span><small>Lo vendió ${esc(x.kid)}</small><small id="wtel" style="display:none">${esc(x.tel)}</small>`;
+ const cb=$("#vtel");cb.onchange=()=>{const w=$("#wtel");if(w)w.style.display=cb.checked?"block":"none"};if(navigator.vibrate)navigator.vibrate(80)}
+async function cierre(b){if(b.dataset.ok!=="1"){b.dataset.ok="1";b.textContent="¿Seguro? Tocá de nuevo para cerrar";b.classList.add("warn");return}
+ b.disabled=true;b.textContent="Cerrando…";const r=await adm("cierre").catch(()=>({ok:false,error:"Sin conexión"}));if(!r.ok){b.disabled=false;b.textContent="🔒 Cerrar la venta";return toast(r.error)}
+ await cargarT();toast(`Venta cerrada. ${r.nums} números no vendidos quedaron a nombre de ${r.filas} misioneros.`);sorV()}
+
+/* lista para imprimir */
+function imprimir(){const L=T.ventas.slice().sort((a,b)=>a.del-b.del);
+ W(`<h1 class="s noprint">LISTA</h1><div class="noprint"><p class="mut">Ordenada por número. ${L.reduce((s,x)=>s+x.q,0)} números en ${L.length} ventas.</p><button class="btn pri" onclick="print()">Imprimir</button></div><table class="plist"><thead><tr><th>Números</th><th>Comprador</th><th>Celular</th><th>Vendió</th></tr></thead><tbody>${L.map(x=>`<tr><td class="nums">${rango(x.del,x.al)}</td><td>${esc(x.n)}</td><td>${esc(x.tel)}</td><td>${esc(x.kid)}</td></tr>`).join("")}</tbody></table><div class="noprint">${back("atab(TAB)")}</div>`)}
+
+/* ---------- arranque ---------- */
+const D=[["tree",3,8,120,-12,"d1"],["mate",86,5,100,12,"d2"],["gift",90,28,100,8,"d3"],["star",2,33,90,-8,"d2"],["bell",85,55,100,-10,"d4"],["guitar",3,58,110,10,"d1"],["star",10,84,70,-12,"d3"],["tree",80,84,100,8,"d4"],["ticket",44,91,90,0,"d2"],["star",92,78,60,14,"d1"],["gift",40,-2,90,-8,"d4"],["ticket",70,68,90,20,"d3"]];
+$("#deco").innerHTML=D.map(([n,x,y,z,r,c])=>`<svg viewBox="0 0 100 100" style="left:${x}%;top:${y}%;width:${z}px;height:${z}px;transform:rotate(${r}deg);color:var(--${c})"><use href="#${n}"/></svg>`).join("");
+function route(){if(location.hash==="#admin")return admin();LOADED?home():start()}
+async function start(){if(API.indexOf("__API")===0)return W(`<h1>RIFA${cross}</h1><p>La página todavía no está conectada a la planilla. ¡Ya casi!</p>`);W("<p>Cargando…</p>");if(location.hash==="#admin")return admin();try{await loadData()}catch(e){}home()}
+addEventListener("hashchange",route);
+start();
+</script></body></html>
