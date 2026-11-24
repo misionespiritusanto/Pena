@@ -26,14 +26,14 @@ function SS() { return SpreadsheetApp.getActiveSpreadsheet(); }
 function out(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
 function doGet(e) {
-  try { preparar(); sincronizar(false); return out(datos()); }
-  catch (err) { return out({ ok: false, error: "Error del sistema: " + err.message }); }
+  try { preparar(); try { sincronizar(false); } catch (x) {} return out(datos()); }
+  catch (err) { return out(err.ocupado ? OCUPADO : { ok: false, error: "Error del sistema: " + err.message }); }
 }
 function doPost(e) {
   let b;
   try { b = JSON.parse(e.postData.contents); } catch (x) { return out({ ok: false, error: "Pedido inválido." }); }
   try { preparar(); return out(accion(b || {})); }
-  catch (err) { return out({ ok: false, error: "Error del sistema: " + err.message }); }
+  catch (err) { return out(err.ocupado ? OCUPADO : { ok: false, error: "Error del sistema: " + err.message }); }
 }
 
 /* ---------- utilidades ---------- */
@@ -43,7 +43,14 @@ function norm(s) { return String(s == null ? "" : s).normalize("NFD").replace(/[
 function clean(s, max) { let t = String(s == null ? "" : s).replace(/\s+/g, " ").trim().slice(0, max || 80); if (/^[=+\-@]/.test(t)) t = "'" + t; return t; }
 function sinComilla(s) { return String(s == null ? "" : s).replace(/^'/, ""); }
 function fmt(v, f) { return v instanceof Date ? Utilities.formatDate(v, TZ, f) : String(v == null ? "" : v); }
-function conLock(fn) { const l = LockService.getScriptLock(); l.waitLock(25000); try { return fn(); } finally { l.releaseLock(); } }
+function conLock(fn) {
+  const l = LockService.getScriptLock();
+  if (!l.tryLock(28000)) { const e = new Error("ocupado"); e.ocupado = true; throw e; }
+  try { return fn(); } finally { l.releaseLock(); }
+}
+const OCUPADO = { ok: false, busy: true, error: "Hay mucha gente anotando al mismo tiempo. Esperá unos segundos y probá de nuevo." };
+/* Última fila con datos en la columna A (en Misioneros las fórmulas ocupan toda la hoja y getLastRow no sirve) */
+function ultimaFila(sh) { const n = sh.getLastRow(); if (n < 2) return n; const v = sh.getRange(1, 1, n, 1).getValues(); for (let i = n - 1; i >= 0; i--) if (String(v[i][0]).trim() !== "") return i + 1; return 0; }
 function siNo(v) { return !/^(no|n|false|0|cerrada)$/i.test(String(v == null ? "" : v).trim()); }
 
 /* Teléfono argentino → "549" + 10 dígitos (o "" si no se entiende). Acepta 11 2345-6789, 15 2345-6789, +54 9 11..., 0221 15 ... */
@@ -69,7 +76,15 @@ function telAR(s) {
   if (d.length === 8) d = "11" + d;
   return d.length === 10 ? "549" + d : "";
 }
-function telLindo(d) { if (!/^549\d{10}$/.test(d)) return d; const r = d.slice(3), a = r.indexOf("11") === 0 ? 2 : 3; return "+54 9 " + r.slice(0, a) + " " + r.slice(a, 6) + "-" + r.slice(6); }
+/* Teléfono: argentino (549…) o del exterior si empieza con + (ej. +598 99 123 456) */
+function telOk(s) { const ar = telAR(s); if (ar) return ar; const t = String(s == null ? "" : s).trim(), d = t.replace(/\D/g, ""); return /^\+/.test(t) && d.indexOf("54") !== 0 && d.length >= 8 && d.length <= 15 ? d : ""; }
+/* "juan pérez" o "JUAN PÉREZ" → "Juan Pérez" (si alguien escribió con mayúsculas a propósito, se respeta) */
+function nombreLindo(s) {
+  const t = String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+  if (t !== t.toLowerCase() && t !== t.toUpperCase()) return t;
+  return t.toLowerCase().split(" ").map((w, i) => (i > 0 && /^(de|del|la|las|los|y|e|da|di)$/.test(w)) ? w : w.replace(/(^|[-'])(\S)/g, (m, a, b) => a + b.toUpperCase())).join(" ");
+}
+function telLindo(d) { if (!/^549\d{10}$/.test(d)) return /^\d{8,15}$/.test(d) ? "+" + d : d; const r = d.slice(3), a = r.indexOf("11") === 0 ? 2 : 3; return "+54 9 " + r.slice(0, a) + " " + r.slice(a, 6) + "-" + r.slice(6); }
 
 function cfg() {
   const sh = SS().getSheetByName("Config"), n = sh.getLastRow(), m = {};
@@ -94,7 +109,7 @@ function pub(c) {
 
 /* Misioneros: A Misionero · B Cupo · C Vendidos (fórmula) · D Tiene que entregar (fórmula) · E Pagó ($) · F Falta pagar (fórmula) · G Estado */
 function misioneros(c) {
-  const sh = SS().getSheetByName("Misioneros"), n = sh.getLastRow(), L = [];
+  const sh = SS().getSheetByName("Misioneros"), n = ultimaFila(sh), L = [];
   if (n < 2) return L;
   sh.getRange(2, 1, n - 1, 7).getValues().forEach((r, i) => {
     const k = String(r[0]).trim();
@@ -148,7 +163,7 @@ function imgUrl(v) {
   const s = String(v == null ? "" : v).trim();
   if (!s) return "";
   const id = (s.match(/\/d\/([\w-]{20,})/) || s.match(/[?&]id=([\w-]{20,})/) || [])[1];
-  if (id) return "https://drive.google.com/thumbnail?id=" + id + "&sz=w1000";
+  if (id) return "https://drive.google.com/thumbnail?id=" + id + "&sz=w600";
   return /^https:\/\//.test(s) ? s : "";
 }
 function premios() {
@@ -166,7 +181,7 @@ function totales(c, L, M) {
   return { vend, pag };
 }
 function datos() {
-  completarAMano();
+  try { completarAMano(); } catch (e) { if (!e.ocupado) throw e; }
   const c = cfg(), L = ventas(), M = misioneros(c), cnt = {};
   L.forEach(x => { if (x.id.indexOf("C-") !== 0) cnt[x.kid] = (cnt[x.kid] || 0) + x.q; });
   return { ok: true, v: 1, config: pub(c), premios: premios(), tot: totales(c, L, M),
@@ -181,27 +196,30 @@ function accion(b) {
   if (!yo) return { ok: false, error: "No encontramos tu nombre en la lista de misioneros. Avisale a un coordinador." };
   if (c.claveM && String(b.clave || "").trim() !== c.claveM) return { ok: false, clave: true, error: "La clave de misioneros no es correcta." };
   if (b.action === "mis") return mis(yo, c);
-  if (b.action === "cargar") return conLock(() => {
+  if (b.action === "cargar") { const r = conLock(() => {
     if (!c.abierta) return { ok: false, error: "La venta de la rifa ya cerró. Si te faltó anotar algo, hablá con un coordinador." };
-    const name = clean(b.name, 70), tel = telAR(b.tel), q = Math.round(Number(b.q));
+    const name = clean(nombreLindo(b.name), 70), tel = telOk(b.tel), q = Number(b.q);
     if (!/\S{2,}\s+\S{2,}/.test(sinComilla(name))) return { ok: false, error: "Escribí nombre y apellido de quien compró." };
-    if (!tel) return { ok: false, error: "Revisá el celular: escribilo con código de área, por ejemplo 11 2345-6789." };
-    if (!(q >= 1 && q <= MAX_POR_VENTA)) return { ok: false, error: "La cantidad de números tiene que ser entre 1 y " + MAX_POR_VENTA + "." };
+    if (!tel) return { ok: false, error: "Revisá el celular: escribilo con código de área, por ejemplo 11 2345-6789 (si es del exterior, empezá con + y el código del país)." };
+    if (!(Number.isInteger(q) && q >= 1 && q <= MAX_POR_VENTA)) return { ok: false, error: "La cantidad de números tiene que ser entre 1 y " + MAX_POR_VENTA + "." };
     const L = ventas(), tl = telLindo(tel);
     const d = L.filter(x => x.kid === kid && norm(x.n) === norm(sinComilla(name)) && x.tel.replace(/\D/g, "") === tel)[0];
     if (d && !b.force) return { ok: false, dup: { n: d.n, q: d.q, f: d.f } };
     const del = proximo(L), al = del + q - 1, id = nuevoId(L, "V");
     agregarVenta([name, "'" + tl, q, del, al, kid, new Date(), id]);
     usar(al);
-    const r = mis(yo, c); r.nuevo = { id, n: sinComilla(name), tel: tl, q, del, al }; return r;
+    return { ok: true, nuevo: { id, n: sinComilla(name), tel: tl, q, del, al } };
   });
-  if (b.action === "borrar") return conLock(() => {
+  if (!r.ok) return r;
+  const m = mis(yo, c); m.nuevo = r.nuevo; return m; }
+  if (b.action === "borrar") { const r = conLock(() => {
     const x = ventas().filter(r => r.id === String(b.id) && r.kid === kid)[0];
     if (!x) return { ok: false, error: "No encontramos esa venta (¿ya la borraste?)." };
     if (!c.abierta || x.id.indexOf("C-") === 0) return { ok: false, error: "La venta ya cerró: para corregir algo, hablá con un coordinador." };
     SS().getSheetByName("Ventas").deleteRow(x.row);
-    return mis(yo, c);
+    return { ok: true };
   });
+  return r.ok ? mis(yo, c) : r; }
   return { ok: false, error: "Acción desconocida." };
 }
 function mis(yo, c) {
@@ -216,7 +234,7 @@ function admin(b, c) {
   if (!c.claveA || String(b.clave || "") !== c.claveA) return { ok: false, error: "Clave incorrecta." };
   const op = b.op;
   if (op === "login") return { ok: true };
-  if (op === "todo") { sincronizar(false); completarAMano(); return { ok: true, config: pub(c), premios: premios(),
+  if (op === "todo") { try { sincronizar(false); completarAMano(); } catch (e) { if (!e.ocupado) throw e; } return { ok: true, config: pub(c), premios: premios(),
     ventas: ventas().map(x => ({ id: x.id, f: x.f, kid: x.kid, n: x.n, tel: x.tel, q: x.q, del: x.del, al: x.al })),
     chicos: misioneros(c).map(x => ({ n: x.n, c: x.c, pag: x.pag, est: x.est })) }; }
   if (op === "borrar") return conLock(() => {
@@ -271,7 +289,7 @@ function sincronizar(forzar) {
   if (!maestra || !maestra.length) { cache.put("sync", "1", 120); return; }
   conLock(() => {
     const props = PropertiesService.getScriptProperties(), auto = JSON.parse(props.getProperty("auto") || "{}");
-    const sh = SS().getSheetByName("Misioneros"), n = sh.getLastRow(), c = cfg();
+    const sh = SS().getSheetByName("Misioneros"), n = ultimaFila(sh), c = cfg();
     const filas = n >= 2 ? sh.getRange(2, 1, n - 1, 7).getValues().filter(r => String(r[0]).trim()) : [];
     const cnt = {}; ventas().forEach(x => cnt[x.kid] = (cnt[x.kid] || 0) + x.q);
     const enMaestra = {}; maestra.forEach(k => enMaestra[k] = 1);
@@ -304,14 +322,21 @@ function sincronizar(forzar) {
   cache.put("sync", "1", 300);
 }
 
+/* Después de borrar ventas de prueba: la numeración sigue desde el número más alto que quede en Ventas (0 si está vacía).
+   Correrla a mano desde Apps Script (elegir "reiniciarNumeracion" > Ejecutar). */
+function reiniciarNumeracion() {
+  conLock(() => { let ult = 0; ventas().forEach(x => { if (x.al > ult) ult = x.al; }); PropertiesService.getScriptProperties().setProperty("ult", String(ult)); });
+}
+
 /* ---------- instalación (corre una sola vez) ---------- */
 function instalar() { preparar(true); sincronizar(true); agregarCoordinadores(); }
 function agregarCoordinadores() {
-  const sh = SS().getSheetByName("Misioneros"), n = sh.getLastRow();
-  const ya = n >= 2 ? sh.getRange(2, 1, n - 1, 1).getValues().map(r => String(r[0]).trim()) : [];
-  COORDINADORES.filter(k => ya.indexOf(k) < 0).forEach((k, i) => { sh.getRange(sh.getLastRow() + 1, 1, 1, 2).setValues([[k, 0]]); });
+  const sh = SS().getSheetByName("Misioneros"), n = ultimaFila(sh);
+  const ya = n >= 2 ? sh.getRange(2, 1, n - 1, 1).getValues().map(r => norm(r[0])) : [];
+  const nuevos = COORDINADORES.filter(k => ya.indexOf(norm(k)) < 0);
+  if (nuevos.length) sh.getRange(Math.max(n, 1) + 1, 1, nuevos.length, 2).setValues(nuevos.map(k => [k, 0]));
 }
-const F_VEND = '={"Vendidos";ARRAYFORMULA(IF(A2:A="","",SUMIFS(Ventas!C2:C,Ventas!F2:F,A2:A,Ventas!H2:H,"V-*")))}';
+const F_VEND = '={"Vendidos";ARRAYFORMULA(IF(A2:A="","",SUMIF(Ventas!F2:F&"|"&LEFT(Ventas!H2:H,1),A2:A&"|V",Ventas!C2:C)))}';
 const F_DEBE = '={"Tiene que entregar ($)";ARRAYFORMULA(IF(A2:A="","",IF(C2:C>IF(B2:B="",Config!B3,B2:B),C2:C,IF(B2:B="",Config!B3,B2:B))*Config!B2))}';
 const F_FALTA = '={"Falta pagar ($)";ARRAYFORMULA(IF(A2:A="","",D2:D-IF(E2:E="",0,E2:E)))}';
 function claveNueva() { const s = "abcdefghjkmnpqrstuvwxyz23456789"; let k = "rifa-"; for (let i = 0; i < 6; i++) k += s[Math.floor(Math.random() * s.length)]; return k; }
@@ -375,6 +400,7 @@ function preparar(forzar) {
       ["      'Tiene que entregar' = el cupo × precio, o lo que vendió si vendió más. Lo demás se calcula solo."],
       ["      ¿Alguien que no está en Asistencia? Escribir su nombre en una fila vacía al final."],
       ["Resumen → totales de números y plata."],
+      ["Si borrás ventas de prueba y querés que la numeración vuelva a empezar desde el último número que quedó: Extensiones > Apps Script > elegir la función \"reiniciarNumeracion\" > Ejecutar."],
       ["Premios → la lista que ven los chicos en la página (botón Ver los premios). El orden de las filas es el orden en que aparecen: para cambiarlo, arrastrá las filas. Imagen: subí la foto a la carpeta \"Fotos premios rifa\" (Infraestructura), tocá Compartir > Copiar vínculo y pegalo en la columna Imagen. También sirve el link de una foto de internet."],
       ["Config → precio, cupo, fechas, meta y claves (celdas amarillas)."],
       [""],
