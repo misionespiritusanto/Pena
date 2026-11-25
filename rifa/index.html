@@ -82,6 +82,9 @@ a.btn{text-align:center;text-decoration:none}
 .big{font:800 3.6rem/1 ui-monospace,monospace;letter-spacing:.06em}
 .drawn{text-align:left;margin-top:12px}
 .prems{margin-top:16px}.prems .band{font-size:1.2rem;line-height:1.2}.prems .band small{display:block;font:500 .9rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--mut);margin-top:4px}
+.prems .bi{cursor:zoom-in;transition:transform .25s ease,box-shadow .25s ease;position:relative}
+@media (hover:hover){.prems .band.izq .bi:hover{transform:scale(2.4);transform-origin:left center;z-index:5;box-shadow:0 10px 30px #0006}.prems .band.der .bi:hover{transform:scale(2.4);transform-origin:right center;z-index:5;box-shadow:0 10px 30px #0006}}
+#lb{position:fixed;inset:0;z-index:100;background:#000d;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}#lb img{max-width:94vw;max-height:78vh;border-radius:14px;object-fit:contain;background:#fff1}#lb .lbt{color:#fff;font:800 1.2rem "Bricolage Grotesque",system-ui,sans-serif;margin-top:12px;text-align:center}#lb .lbt small{display:block;font-weight:500;opacity:.8}#lb .lbx{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#000;font-size:1.3rem;cursor:pointer}
 .prems .band.izq{margin-right:30px;transform:rotate(-1.5deg)}.prems .band.der{margin-left:30px;flex-direction:row-reverse;text-align:right;transform:rotate(1.5deg)}
 .opt input[type=checkbox]{width:22px;height:22px;flex:none;margin:0}
 </style></head><body>
@@ -152,8 +155,48 @@ function metaH(){return `<div class="card" style="margin-top:14px;text-align:cen
 function premH(){return PREM.length?`<button class="btn" onclick="premios()">🎁 Ver los premios</button>`:""}
 let PBACK="home()";
 function premios(){const L=PREM;W(`<h1 class="s">PREMIOS</h1><div class="sub">RIFA NAVIDEÑA</div>${CFG.sorteo?`<div class="when">¡Sorteamos el ${esc(CFG.sorteo)}!</div>`:""}
- ${L.length?`<div class="prems">${L.map((p,i)=>`<div class="band ${i%2?"der":"izq"}">${p.img?`<img class="bi" src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span>${esc(p.t)}${p.d?`<small>${esc(p.d)}</small>`:""}</span></div>`).join("")}</div>`:`<p>Pronto vas a ver los premios acá.</p>`}
- <p class="mut" style="text-align:center;font-size:.9rem;margin-top:12px">¡Y se van sumando más!</p>${back(PBACK)}`)}
+ ${L.length?`<div class="prems">${L.map((p,i)=>`<div class="band ${i%2?"der":"izq"}">${p.img?`<img class="bi" src="${esc(p.img)}" alt="Foto: ${esc(p.t)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()" onclick="verFoto(${i})" title="Tocá para verla grande">`:""}<span>${esc(p.t)}${p.d?`<small>${esc(p.d)}</small>`:""}</span></div>`).join("")}</div>`:`<p>Pronto vas a ver los premios acá.</p>`}
+ <p class="mut" style="text-align:center;font-size:.9rem;margin-top:12px">¡Y se van sumando más!</p>
+ ${L.length?`<button class="btn pri" id="dlp" onclick="descargarPremios(this)">📲 Descargar los premios para compartir</button><p class="mut" style="text-align:center;font-size:.85rem;margin:-4px 0 6px">Es una imagen con todos los premios, para mandar a quien quiera comprar.</p>`:""}${back(PBACK)}`)}
+/* Foto grande: las miniaturas de Drive se piden en más resolución (lh3 permite usarlas en el canvas) */
+function fotoGrande(u,w){const id=(String(u).match(/drive\.google\.com\/thumbnail\?id=([\w-]+)/)||[])[1];return id?`https://lh3.googleusercontent.com/d/${id}=w${w}`:u}
+function verFoto(i){const p=PREM[i];if(!p||!p.img)return;cerrarFoto();const d=document.createElement("div");d.id="lb";d.setAttribute("role","dialog");d.innerHTML=`<button class="lbx" aria-label="Cerrar">✕</button><img src="${esc(fotoGrande(p.img,1600))}" alt="" referrerpolicy="no-referrer" onerror="this.src='${esc(p.img)}'"><div class="lbt">${esc(p.t)}${p.d?`<small>${esc(p.d)}</small>`:""}</div>`;d.onclick=cerrarFoto;document.body.appendChild(d);document.body.style.overflow="hidden"}
+function cerrarFoto(){const d=$("#lb");if(d){d.remove();document.body.style.overflow=""}}
+addEventListener("keydown",e=>{if(e.key==="Escape")cerrarFoto()});
+/* Imagen para compartir con todos los premios (se arma en el momento, así siempre tiene los premios actuales) */
+async function cargarImg(u){try{const r=await fetch(fotoGrande(u,600),{mode:"cors"});if(!r.ok)throw 0;const b=await r.blob();return await createImageBitmap(b)}catch(e){return null}}
+function lineas(x,t,max){const w=String(t).split(" "),L=[];let l="";w.forEach(p=>{const q=l?l+" "+p:p;if(x.measureText(q).width>max&&l){L.push(l);l=p}else l=q});if(l)L.push(l);return L}
+function rrect(x,X,Y,W,H,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath()}
+async function descargarPremios(b){const txt=b.textContent;b.disabled=true;b.textContent="Armando la imagen…";try{
+ const F="'Bricolage Grotesque',system-ui,sans-serif";try{await Promise.all([document.fonts.load("800 80px 'Bricolage Grotesque'"),document.fonts.load("500 30px 'Bricolage Grotesque'"),document.fonts.load("700 40px 'Bricolage Grotesque'")])}catch(e){}
+ const C={bg:"#e9dcc0",card:"#fbf5e6",ink:"#3b2614",brown:"#5a3b1d",mut:"#7a6450",tint:"#f1e4c6",red:"#9d171b",gold:"#d9a441"};
+ const imgs=await Promise.all(PREM.map(p=>p.img?cargarImg(p.img):null));
+ const cr=new Image();cr.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(cross.replace("<svg ",'<svg xmlns="http://www.w3.org/2000/svg" '));try{await cr.decode()}catch(e){}
+ const Wd=1080,M=60,IW=Wd-2*M,cv=document.createElement("canvas"),x=cv.getContext("2d");
+ /* medir alto de cada premio */
+ x.font=`800 44px ${F}`;const rows=PREM.map((p,i)=>{const im=imgs[i],tw=IW-80-(im?250:0);x.font=`800 44px ${F}`;const tl=lineas(x,p.t,tw);x.font=`500 30px ${F}`;const dl=p.d?lineas(x,p.d,tw):[];const th=tl.length*52+dl.length*38+(dl.length?10:0);return {p,im,tl,dl,tw,h:Math.max(im?230:0,th)+60}});
+ const head=470,foot=300,H=head+rows.reduce((s,r)=>s+r.h+30,0)+foot;cv.width=Wd;cv.height=H;
+ x.fillStyle=C.bg;x.fillRect(0,0,Wd,H);
+ x.fillStyle=C.gold;rrect(x,M-20+12,30+12,IW+40,H-60,40);x.fill();x.fillStyle=C.card;x.strokeStyle=C.brown;x.lineWidth=5;rrect(x,M-20,30,IW+40,H-60,40);x.fill();x.stroke();
+ x.textAlign="center";x.fillStyle=C.mut;x.font=`700 28px ${F}`;x.fillText("GRUPO MISIONERO · PARROQUIA ESPÍRITU SANTO",Wd/2,110);
+ x.fillStyle=C.brown;x.font=`800 120px ${F}`;const tW=x.measureText("RIFA").width;x.fillText("RIFA",Wd/2-45,240);if(cr.complete&&cr.naturalWidth)x.drawImage(cr,Wd/2-45+tW/2+12,138,86,101);
+ x.font=`800 54px ${F}`;x.fillText("NAVIDEÑA",Wd/2,310);
+ x.fillStyle=C.red;x.font=`800 40px ${F}`;x.fillText(CFG.sorteo?`¡Sorteamos el ${CFG.sorteo}!`:"¡Mirá todos los premios!",Wd/2,385);
+ x.fillStyle=C.ink;x.font=`700 34px ${F}`;x.fillText(`${money(CFG.price)} el número · Estos son los premios:`,Wd/2,438);
+ let y=head;rows.forEach((r,i)=>{const der=i%2===1,X=M+(der?40:0),Wc=IW-40;x.save();x.translate(X+Wc/2,y+r.h/2);x.rotate((der?1:-1)*0.012);x.translate(-(X+Wc/2),-(y+r.h/2));
+  x.fillStyle=C.tint;x.strokeStyle=C.brown;x.lineWidth=4;rrect(x,X,y,Wc,r.h,28);x.fill();x.stroke();
+  let tx=X+30,align="left";if(r.im){const s=230,ix=der?X+Wc-30-s:X+30,iy=y+(r.h-s)/2;x.save();rrect(x,ix,iy,s,s,22);x.clip();const k=Math.max(s/r.im.width,s/r.im.height),w=r.im.width*k,h=r.im.height*k;x.drawImage(r.im,ix+(s-w)/2,iy+(s-h)/2,w,h);x.restore();x.strokeStyle=C.brown;x.lineWidth=4;rrect(x,ix,iy,s,s,22);x.stroke();if(!der)tx=ix+s+30}
+  if(der){align="right";tx=r.im?X+Wc-30-230-30:X+Wc-30}
+  x.textAlign=align;const th=r.tl.length*52+r.dl.length*38+(r.dl.length?10:0);let ty=y+(r.h-th)/2+42;x.fillStyle=C.ink;x.font=`800 44px ${F}`;r.tl.forEach(l=>{x.fillText(l,tx,ty);ty+=52});ty+=10;x.fillStyle=C.mut;x.font=`500 30px ${F}`;r.dl.forEach(l=>{x.fillText(l,tx,ty-8);ty+=38});
+  x.restore();y+=r.h+30});
+ x.textAlign="center";y+=40;x.fillStyle=C.ink;x.font=`700 34px ${F}`;if(CFG.como)lineas(x,CFG.como+(CFG.ig?" "+CFG.ig:""),IW-40).forEach(l=>{x.fillText(l,Wd/2,y);y+=44});
+ y+=30;x.fillStyle=C.red;x.font=`800 46px ${F}`;x.fillText("¡Pedile tu número a un misionero!",Wd/2,y);
+ y+=60;x.fillStyle=C.mut;x.font=`500 28px ${F}`;x.fillText("A beneficio de la misión de verano del Grupo Misionero 💛",Wd/2,y);
+ const blob=await new Promise(z=>cv.toBlob(z,"image/png")),file=new File([blob],"Premios-Rifa-Navidena.png",{type:"image/png"});
+ if(navigator.canShare&&navigator.canShare({files:[file]})&&matchMedia("(pointer:coarse)").matches){try{await navigator.share({files:[file],title:"Premios de la Rifa Navideña"})}catch(e){if(e&&e.name!=="AbortError")throw e}}
+ else{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast("Listo: la imagen quedó en tus descargas.")}
+ if(imgs.some((m,i)=>PREM[i].img&&!m))toast("Algunas fotos no se pudieron agregar a la imagen.");
+}catch(e){toast("No se pudo armar la imagen. Probá de nuevo.")}b.disabled=false;b.textContent=txt}
 const sorteoTxt=()=>CFG.sorteo?`<div class="when">¡Sorteamos el ${esc(CFG.sorteo)}!</div>${CFG.como?`<div class="mut">${esc(CFG.como)}${CFG.ig?" · "+esc(CFG.ig):""}</div>`:""}`:"";
 
 /* ---------- portada ---------- */
